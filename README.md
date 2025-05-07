@@ -70,8 +70,13 @@ Proyecto2_OS/
 ```
 
 ## 📚 Autores
+
 Nombres de los autores: Pablo Daniel Barillas y Pedro Pablo Gúzman
+
 Proyecto universitario - Universidad del Valle de Guatemala
+
 Curso: Sistemas Operativos
+
 Docente: Sebastián Galindo
+
 Año: 2025
