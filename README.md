@@ -71,7 +71,7 @@ Proyecto2_OS/
 
 ## 📚 Autores
 
-Nombres de los autores: Pablo Daniel Barillas y Pedro Pablo Gúzman
+Nombres de los autores: Pablo Daniel Barillas, Pedro Pablo Gúzman y Esteban Zambrano
 
 Proyecto universitario - Universidad del Valle de Guatemala
 
