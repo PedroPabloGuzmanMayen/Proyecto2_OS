@@ -1,4 +1,3 @@
-````markdown
 # 🖥️ Simulador de Sistemas Operativos
 
 Simulador visual desarrollado en C++ con FLTK para representar algoritmos de planificación y mecanismos de sincronización, como parte del curso de **Sistemas Operativos** en la **Universidad del Valle de Guatemala**.
