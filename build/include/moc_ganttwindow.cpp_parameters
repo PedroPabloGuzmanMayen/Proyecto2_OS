@@ -1,0 +1,5 @@
+-I/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/include
+-I/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/gui
+-o
+/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/include/moc_ganttwindow.cpp
+/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/include/ganttwindow.h

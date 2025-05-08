@@ -84,12 +84,12 @@ CMakeFiles/simulador.dir/all: CMakeFiles/simulador_autogen_timestamp_deps.dir/al
 CMakeFiles/simulador.dir/all: CMakeFiles/simulador_autogen.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador.dir/build.make CMakeFiles/simulador.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador.dir/build.make CMakeFiles/simulador.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles --progress-num=1,2,3,4,5,6,7 "Built target simulador"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10 "Built target simulador"
 .PHONY : CMakeFiles/simulador.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/simulador.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles 8
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles 11
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/simulador.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles 0
 .PHONY : CMakeFiles/simulador.dir/rule
@@ -136,7 +136,7 @@ CMakeFiles/simulador_autogen_timestamp_deps.dir/clean:
 CMakeFiles/simulador_autogen.dir/all: CMakeFiles/simulador_autogen_timestamp_deps.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador_autogen.dir/build.make CMakeFiles/simulador_autogen.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador_autogen.dir/build.make CMakeFiles/simulador_autogen.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles --progress-num=8 "Built target simulador_autogen"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles --progress-num=11 "Built target simulador_autogen"
 .PHONY : CMakeFiles/simulador_autogen.dir/all
 
 # Build rule for subdir invocation for target.

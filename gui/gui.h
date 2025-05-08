@@ -3,6 +3,9 @@
 
 #include <QMainWindow>
 #include <QPushButton>
+#include <QComboBox>
+#include <QSpinBox>
+#include <QLabel>
 
 class SimuladorGUI : public QMainWindow {
     Q_OBJECT
@@ -17,6 +20,9 @@ private slots:
 private:
     QPushButton *btnSimA;
     QPushButton *btnSimB;
+    QComboBox *comboAlgoritmo;
+    QSpinBox *spinQuantum;
+    QLabel *labelQuantum;
 };
 
 #endif

@@ -7,6 +7,7 @@ simulador_autogen/timestamp: \
 	/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/gui/gui.cpp \
 	/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/gui/gui.h \
 	/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/src/algoritmo.cpp \
+	/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/src/ganttwindow.cpp \
 	/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/src/main.cpp \
 	/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/src/proceso.cpp \
 	/usr/include/asm-generic/errno-base.h \
@@ -248,6 +249,7 @@ simulador_autogen/timestamp: \
 	/usr/include/x86_64-linux-gnu/c++/13/bits/os_defines.h \
 	/usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
 	/usr/include/x86_64-linux-gnu/gnu/stubs.h \
+	/usr/include/x86_64-linux-gnu/qt5/QtCore/qabstractitemmodel.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtCore/qalgorithms.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtCore/qarraydata.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtCore/qatomic.h \
@@ -271,7 +273,9 @@ simulador_autogen/timestamp: \
 	/usr/include/x86_64-linux-gnu/qt5/QtCore/qiterator.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtCore/qline.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtCore/qlist.h \
+	/usr/include/x86_64-linux-gnu/qt5/QtCore/qlocale.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtCore/qlogging.h \
+	/usr/include/x86_64-linux-gnu/qt5/QtCore/qmap.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtCore/qmargins.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtCore/qmetatype.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtCore/qnamespace.h \
@@ -286,6 +290,7 @@ simulador_autogen/timestamp: \
 	/usr/include/x86_64-linux-gnu/qt5/QtCore/qrect.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtCore/qrefcount.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtCore/qregexp.h \
+	/usr/include/x86_64-linux-gnu/qt5/QtCore/qregularexpression.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtCore/qscopedpointer.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtCore/qshareddata.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtCore/qsharedpointer.h \
@@ -301,6 +306,7 @@ simulador_autogen/timestamp: \
 	/usr/include/x86_64-linux-gnu/qt5/QtCore/qsystemdetection.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtCore/qtcore-config.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtCore/qtypeinfo.h \
+	/usr/include/x86_64-linux-gnu/qt5/QtCore/qvariant.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtCore/qvarlengtharray.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtCore/qvector.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtCore/qversiontagging.h \
@@ -325,13 +331,29 @@ simulador_autogen/timestamp: \
 	/usr/include/x86_64-linux-gnu/qt5/QtGui/qtgui-config.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtGui/qtguiglobal.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtGui/qtransform.h \
+	/usr/include/x86_64-linux-gnu/qt5/QtGui/qvalidator.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtGui/qwindowdefs.h \
+	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QComboBox \
+	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QLabel \
 	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QMainWindow \
 	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QPushButton \
+	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QSpinBox \
 	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qabstractbutton.h \
+	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qabstractitemdelegate.h \
+	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qabstractslider.h \
+	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qabstractspinbox.h \
+	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qcombobox.h \
+	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qframe.h \
+	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qlabel.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qmainwindow.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qpushbutton.h \
+	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qrubberband.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qsizepolicy.h \
+	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qslider.h \
+	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qspinbox.h \
+	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qstyle.h \
+	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qstyleoption.h \
+	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qtabbar.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qtabwidget.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qtwidgets-config.h \
 	/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qtwidgetsglobal.h \

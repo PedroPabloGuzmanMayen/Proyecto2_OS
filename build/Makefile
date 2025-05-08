@@ -179,6 +179,30 @@ gui/gui.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador.dir/build.make CMakeFiles/simulador.dir/gui/gui.cpp.s
 .PHONY : gui/gui.cpp.s
 
+include/moc_ganttwindow.o: include/moc_ganttwindow.cpp.o
+.PHONY : include/moc_ganttwindow.o
+
+# target to build an object file
+include/moc_ganttwindow.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador.dir/build.make CMakeFiles/simulador.dir/include/moc_ganttwindow.cpp.o
+.PHONY : include/moc_ganttwindow.cpp.o
+
+include/moc_ganttwindow.i: include/moc_ganttwindow.cpp.i
+.PHONY : include/moc_ganttwindow.i
+
+# target to preprocess a source file
+include/moc_ganttwindow.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador.dir/build.make CMakeFiles/simulador.dir/include/moc_ganttwindow.cpp.i
+.PHONY : include/moc_ganttwindow.cpp.i
+
+include/moc_ganttwindow.s: include/moc_ganttwindow.cpp.s
+.PHONY : include/moc_ganttwindow.s
+
+# target to generate assembly for a file
+include/moc_ganttwindow.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador.dir/build.make CMakeFiles/simulador.dir/include/moc_ganttwindow.cpp.s
+.PHONY : include/moc_ganttwindow.cpp.s
+
 simulador_autogen/mocs_compilation.o: simulador_autogen/mocs_compilation.cpp.o
 .PHONY : simulador_autogen/mocs_compilation.o
 
@@ -226,6 +250,30 @@ src/algoritmo.s: src/algoritmo.cpp.s
 src/algoritmo.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador.dir/build.make CMakeFiles/simulador.dir/src/algoritmo.cpp.s
 .PHONY : src/algoritmo.cpp.s
+
+src/ganttwindow.o: src/ganttwindow.cpp.o
+.PHONY : src/ganttwindow.o
+
+# target to build an object file
+src/ganttwindow.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador.dir/build.make CMakeFiles/simulador.dir/src/ganttwindow.cpp.o
+.PHONY : src/ganttwindow.cpp.o
+
+src/ganttwindow.i: src/ganttwindow.cpp.i
+.PHONY : src/ganttwindow.i
+
+# target to preprocess a source file
+src/ganttwindow.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador.dir/build.make CMakeFiles/simulador.dir/src/ganttwindow.cpp.i
+.PHONY : src/ganttwindow.cpp.i
+
+src/ganttwindow.s: src/ganttwindow.cpp.s
+.PHONY : src/ganttwindow.s
+
+# target to generate assembly for a file
+src/ganttwindow.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador.dir/build.make CMakeFiles/simulador.dir/src/ganttwindow.cpp.s
+.PHONY : src/ganttwindow.cpp.s
 
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
@@ -289,12 +337,18 @@ help:
 	@echo "... gui/gui.o"
 	@echo "... gui/gui.i"
 	@echo "... gui/gui.s"
+	@echo "... include/moc_ganttwindow.o"
+	@echo "... include/moc_ganttwindow.i"
+	@echo "... include/moc_ganttwindow.s"
 	@echo "... simulador_autogen/mocs_compilation.o"
 	@echo "... simulador_autogen/mocs_compilation.i"
 	@echo "... simulador_autogen/mocs_compilation.s"
 	@echo "... src/algoritmo.o"
 	@echo "... src/algoritmo.i"
 	@echo "... src/algoritmo.s"
+	@echo "... src/ganttwindow.o"
+	@echo "... src/ganttwindow.i"
+	@echo "... src/ganttwindow.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
