@@ -1,26 +1,30 @@
 #include "proceso.h"
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#include <algorithm>
+#include <QFile>
+#include <QTextStream>
+#include <QDebug>
 
-std::vector<Proceso> cargarProcesosDesdeArchivo(const std::string& ruta) {
+std::vector<Proceso> cargarProcesosDesdeArchivo(const QString &ruta) {
     std::vector<Proceso> procesos;
-    std::ifstream archivo(ruta);
-    std::string linea;
+    QFile file(ruta);
 
-    while (std::getline(archivo, linea)) {
-        // Ignora líneas vacías o comentarios
-        if (linea.empty() || linea[0] == '#') continue;
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning() << "No se pudo abrir el archivo:" << ruta;
+        return procesos;
+    }
 
-        std::replace(linea.begin(), linea.end(), ',', ' ');
-        std::istringstream ss(linea);
-        Proceso p;
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        QString line = in.readLine().trimmed();
+        if (line.isEmpty() || line.startsWith("#")) continue;
 
-        if (ss >> p.pid >> p.burstTime >> p.arrivalTime >> p.priority) {
+        QStringList tokens = line.split(",");
+        if (tokens.size() == 4) {
+            Proceso p;
+            p.pid = tokens[0].trimmed();
+            p.burstTime = tokens[1].trimmed().toInt();
+            p.arrivalTime = tokens[2].trimmed().toInt();
+            p.priority = tokens[3].trimmed().toInt();
             procesos.push_back(p);
-        } else {
-            std::cerr << "Error en línea: " << linea << std::endl;
         }
     }
 

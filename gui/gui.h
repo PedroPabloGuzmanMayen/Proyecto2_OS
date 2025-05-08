@@ -1,21 +1,22 @@
-#ifndef GUI_H
-#define GUI_H
+#ifndef SIMULADORGUI_H
+#define SIMULADORGUI_H
 
-#include <FL/Fl_Window.H>
-#include <FL/Fl_Button.H>
+#include <QMainWindow>
+#include <QPushButton>
 
-class SimuladorGUI {
+class SimuladorGUI : public QMainWindow {
+    Q_OBJECT
+
 public:
-    SimuladorGUI();
-    void show();
+    SimuladorGUI(QWidget *parent = nullptr);
+
+private slots:
+    void onSimulacionAClicked();
+    void onSimulacionBClicked();
 
 private:
-    Fl_Window *ventana;
-    Fl_Button *btnSimA;
-    Fl_Button *btnSimB;
-
-    static void onClickSimA(Fl_Widget*, void*);
-    static void onClickSimB(Fl_Widget*, void*);
+    QPushButton *btnSimA;
+    QPushButton *btnSimB;
 };
 
 #endif

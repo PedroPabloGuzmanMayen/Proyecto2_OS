@@ -1,39 +1,47 @@
 #include "gui.h"
-#include <FL/fl_message.H>
-#include <iostream>
-#include <vector>
-#include "../src/proceso.h"
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QWidget>
+#include <QMessageBox>
+#include "proceso.h"
+#include "algoritmo.h"
 
-SimuladorGUI::SimuladorGUI() {
-    ventana = new Fl_Window(400, 200, "Simulador de Sistemas Operativos");
+SimuladorGUI::SimuladorGUI(QWidget *parent)
+    : QMainWindow(parent) {
+    QWidget *central = new QWidget(this);
+    QVBoxLayout *layout = new QVBoxLayout(central);
 
-    btnSimA = new Fl_Button(50, 70, 130, 40, "Simulación A");
-    btnSimA->callback(onClickSimA, nullptr);
+    btnSimA = new QPushButton("Simulación A", this);
+    btnSimB = new QPushButton("Simulación B", this);
 
-    btnSimB = new Fl_Button(220, 70, 130, 40, "Simulación B");
-    btnSimB->callback(onClickSimB, nullptr);
+    layout->addWidget(btnSimA);
+    layout->addWidget(btnSimB);
 
-    ventana->end();
+    connect(btnSimA, &QPushButton::clicked, this, &SimuladorGUI::onSimulacionAClicked);
+    connect(btnSimB, &QPushButton::clicked, this, &SimuladorGUI::onSimulacionBClicked);
+
+    setCentralWidget(central);
+    setWindowTitle("Simulador de Sistemas Operativos");
 }
 
-void SimuladorGUI::show() {
-    ventana->show();
-}
+void SimuladorGUI::onSimulacionAClicked() {
+    auto procesos = cargarProcesosDesdeArchivo("data/procesos.txt");
 
-void SimuladorGUI::onClickSimA(Fl_Widget*, void*) {
-    std::vector<Proceso> procesos = cargarProcesosDesdeArchivo("data/procesos.txt");
-
-    std::cout << "Se cargaron " << procesos.size() << " procesos desde el archivo." << std::endl;
-    for (const auto& p : procesos) {
-        std::cout << p.pid << ": BT=" << p.burstTime
-                  << ", AT=" << p.arrivalTime
-                  << ", Priority=" << p.priority << std::endl;
+    if (procesos.empty()) {
+        QMessageBox::warning(this, "Error", "No se cargaron procesos.");
+        return;
     }
 
-    fl_message("Procesos cargados (ver terminal)");
+    auto ejecutados = fifo(procesos);
+
+    QString resultado = "Orden FIFO:\n";
+    for (const auto& p : ejecutados) {
+        resultado += p.pid + "\n";
+    }
+
+    QMessageBox::information(this, "FIFO", resultado);
 }
 
-void SimuladorGUI::onClickSimB(Fl_Widget*, void*) {
-    fl_message("Simulación B: Mecanismos de Sincronización");
-    // Aquí se llamará más adelante al módulo de sincronización
+void SimuladorGUI::onSimulacionBClicked() {
+    QMessageBox::information(this, "Info", "Simulación B aún no implementada.");
 }

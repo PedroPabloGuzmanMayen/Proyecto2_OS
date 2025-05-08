@@ -1,16 +1,16 @@
 #ifndef PROCESO_H
 #define PROCESO_H
 
-#include <string>
+#include <QString>
 #include <vector>
 
 struct Proceso {
-    std::string pid;
+    QString pid;
     int burstTime;
     int arrivalTime;
     int priority;
 };
 
-std::vector<Proceso> cargarProcesosDesdeArchivo(const std::string& ruta);
+std::vector<Proceso> cargarProcesosDesdeArchivo(const QString &ruta);
 
 #endif

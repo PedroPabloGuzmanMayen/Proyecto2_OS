@@ -1,8 +1,9 @@
+#include <QApplication>
 #include "../gui/gui.h"
-#include <FL/Fl.H>
 
-int main(int argc, char **argv) {
-    SimuladorGUI gui;
-    gui.show();
-    return Fl::run();
+int main(int argc, char *argv[]) {
+    QApplication app(argc, argv);
+    SimuladorGUI ventana;
+    ventana.show();
+    return app.exec();
 }

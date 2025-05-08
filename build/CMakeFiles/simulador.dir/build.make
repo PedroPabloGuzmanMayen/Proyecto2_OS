@@ -69,10 +69,31 @@ include CMakeFiles/simulador.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/simulador.dir/flags.make
 
+simulador_autogen/timestamp: /usr/lib/qt5/bin/moc
+simulador_autogen/timestamp: /usr/lib/qt5/bin/uic
+simulador_autogen/timestamp: CMakeFiles/simulador.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Automatic MOC and UIC for target simulador"
+	/usr/bin/cmake -E cmake_autogen /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles/simulador_autogen.dir/AutogenInfo.json ""
+	/usr/bin/cmake -E touch /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/simulador_autogen/timestamp
+
+CMakeFiles/simulador.dir/simulador_autogen/mocs_compilation.cpp.o: CMakeFiles/simulador.dir/flags.make
+CMakeFiles/simulador.dir/simulador_autogen/mocs_compilation.cpp.o: simulador_autogen/mocs_compilation.cpp
+CMakeFiles/simulador.dir/simulador_autogen/mocs_compilation.cpp.o: CMakeFiles/simulador.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/simulador.dir/simulador_autogen/mocs_compilation.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/simulador.dir/simulador_autogen/mocs_compilation.cpp.o -MF CMakeFiles/simulador.dir/simulador_autogen/mocs_compilation.cpp.o.d -o CMakeFiles/simulador.dir/simulador_autogen/mocs_compilation.cpp.o -c /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/simulador_autogen/mocs_compilation.cpp
+
+CMakeFiles/simulador.dir/simulador_autogen/mocs_compilation.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/simulador.dir/simulador_autogen/mocs_compilation.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/simulador_autogen/mocs_compilation.cpp > CMakeFiles/simulador.dir/simulador_autogen/mocs_compilation.cpp.i
+
+CMakeFiles/simulador.dir/simulador_autogen/mocs_compilation.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/simulador.dir/simulador_autogen/mocs_compilation.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/simulador_autogen/mocs_compilation.cpp -o CMakeFiles/simulador.dir/simulador_autogen/mocs_compilation.cpp.s
+
 CMakeFiles/simulador.dir/gui/gui.cpp.o: CMakeFiles/simulador.dir/flags.make
 CMakeFiles/simulador.dir/gui/gui.cpp.o: /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/gui/gui.cpp
 CMakeFiles/simulador.dir/gui/gui.cpp.o: CMakeFiles/simulador.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/simulador.dir/gui/gui.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/simulador.dir/gui/gui.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/simulador.dir/gui/gui.cpp.o -MF CMakeFiles/simulador.dir/gui/gui.cpp.o.d -o CMakeFiles/simulador.dir/gui/gui.cpp.o -c /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/gui/gui.cpp
 
 CMakeFiles/simulador.dir/gui/gui.cpp.i: cmake_force
@@ -83,10 +104,24 @@ CMakeFiles/simulador.dir/gui/gui.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/simulador.dir/gui/gui.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/gui/gui.cpp -o CMakeFiles/simulador.dir/gui/gui.cpp.s
 
+CMakeFiles/simulador.dir/src/algoritmo.cpp.o: CMakeFiles/simulador.dir/flags.make
+CMakeFiles/simulador.dir/src/algoritmo.cpp.o: /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/src/algoritmo.cpp
+CMakeFiles/simulador.dir/src/algoritmo.cpp.o: CMakeFiles/simulador.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/simulador.dir/src/algoritmo.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/simulador.dir/src/algoritmo.cpp.o -MF CMakeFiles/simulador.dir/src/algoritmo.cpp.o.d -o CMakeFiles/simulador.dir/src/algoritmo.cpp.o -c /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/src/algoritmo.cpp
+
+CMakeFiles/simulador.dir/src/algoritmo.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/simulador.dir/src/algoritmo.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/src/algoritmo.cpp > CMakeFiles/simulador.dir/src/algoritmo.cpp.i
+
+CMakeFiles/simulador.dir/src/algoritmo.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/simulador.dir/src/algoritmo.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/src/algoritmo.cpp -o CMakeFiles/simulador.dir/src/algoritmo.cpp.s
+
 CMakeFiles/simulador.dir/src/main.cpp.o: CMakeFiles/simulador.dir/flags.make
 CMakeFiles/simulador.dir/src/main.cpp.o: /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/src/main.cpp
 CMakeFiles/simulador.dir/src/main.cpp.o: CMakeFiles/simulador.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/simulador.dir/src/main.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/simulador.dir/src/main.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/simulador.dir/src/main.cpp.o -MF CMakeFiles/simulador.dir/src/main.cpp.o.d -o CMakeFiles/simulador.dir/src/main.cpp.o -c /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/src/main.cpp
 
 CMakeFiles/simulador.dir/src/main.cpp.i: cmake_force
@@ -100,7 +135,7 @@ CMakeFiles/simulador.dir/src/main.cpp.s: cmake_force
 CMakeFiles/simulador.dir/src/proceso.cpp.o: CMakeFiles/simulador.dir/flags.make
 CMakeFiles/simulador.dir/src/proceso.cpp.o: /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/src/proceso.cpp
 CMakeFiles/simulador.dir/src/proceso.cpp.o: CMakeFiles/simulador.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/simulador.dir/src/proceso.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/simulador.dir/src/proceso.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/simulador.dir/src/proceso.cpp.o -MF CMakeFiles/simulador.dir/src/proceso.cpp.o.d -o CMakeFiles/simulador.dir/src/proceso.cpp.o -c /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/src/proceso.cpp
 
 CMakeFiles/simulador.dir/src/proceso.cpp.i: cmake_force
@@ -113,20 +148,26 @@ CMakeFiles/simulador.dir/src/proceso.cpp.s: cmake_force
 
 # Object files for target simulador
 simulador_OBJECTS = \
+"CMakeFiles/simulador.dir/simulador_autogen/mocs_compilation.cpp.o" \
 "CMakeFiles/simulador.dir/gui/gui.cpp.o" \
+"CMakeFiles/simulador.dir/src/algoritmo.cpp.o" \
 "CMakeFiles/simulador.dir/src/main.cpp.o" \
 "CMakeFiles/simulador.dir/src/proceso.cpp.o"
 
 # External object files for target simulador
 simulador_EXTERNAL_OBJECTS =
 
+simulador: CMakeFiles/simulador.dir/simulador_autogen/mocs_compilation.cpp.o
 simulador: CMakeFiles/simulador.dir/gui/gui.cpp.o
+simulador: CMakeFiles/simulador.dir/src/algoritmo.cpp.o
 simulador: CMakeFiles/simulador.dir/src/main.cpp.o
 simulador: CMakeFiles/simulador.dir/src/proceso.cpp.o
 simulador: CMakeFiles/simulador.dir/build.make
-simulador: /usr/lib/x86_64-linux-gnu/libfltk.so
+simulador: /usr/lib/x86_64-linux-gnu/libQt5Widgets.so.5.15.13
+simulador: /usr/lib/x86_64-linux-gnu/libQt5Gui.so.5.15.13
+simulador: /usr/lib/x86_64-linux-gnu/libQt5Core.so.5.15.13
 simulador: CMakeFiles/simulador.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable simulador"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable simulador"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/simulador.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -137,7 +178,7 @@ CMakeFiles/simulador.dir/clean:
 	$(CMAKE_COMMAND) -P CMakeFiles/simulador.dir/cmake_clean.cmake
 .PHONY : CMakeFiles/simulador.dir/clean
 
-CMakeFiles/simulador.dir/depend:
+CMakeFiles/simulador.dir/depend: simulador_autogen/timestamp
 	cd /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles/simulador.dir/DependInfo.cmake "--color=$(COLOR)"
 .PHONY : CMakeFiles/simulador.dir/depend
 

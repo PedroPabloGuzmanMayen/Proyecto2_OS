@@ -1,3 +1,5 @@
 /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles/simulador.dir
 /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles/edit_cache.dir
 /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles/rebuild_cache.dir
+/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles/simulador_autogen_timestamp_deps.dir
+/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles/simulador_autogen.dir

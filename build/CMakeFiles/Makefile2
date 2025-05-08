@@ -72,21 +72,24 @@ preinstall:
 
 # The main recursive "clean" target.
 clean: CMakeFiles/simulador.dir/clean
+clean: CMakeFiles/simulador_autogen_timestamp_deps.dir/clean
+clean: CMakeFiles/simulador_autogen.dir/clean
 .PHONY : clean
 
 #=============================================================================
 # Target rules for target CMakeFiles/simulador.dir
 
 # All Build rule for target.
-CMakeFiles/simulador.dir/all:
+CMakeFiles/simulador.dir/all: CMakeFiles/simulador_autogen_timestamp_deps.dir/all
+CMakeFiles/simulador.dir/all: CMakeFiles/simulador_autogen.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador.dir/build.make CMakeFiles/simulador.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador.dir/build.make CMakeFiles/simulador.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles --progress-num=1,2,3,4 "Built target simulador"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles --progress-num=1,2,3,4,5,6,7 "Built target simulador"
 .PHONY : CMakeFiles/simulador.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/simulador.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles 8
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/simulador.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles 0
 .PHONY : CMakeFiles/simulador.dir/rule
@@ -99,6 +102,58 @@ simulador: CMakeFiles/simulador.dir/rule
 CMakeFiles/simulador.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador.dir/build.make CMakeFiles/simulador.dir/clean
 .PHONY : CMakeFiles/simulador.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/simulador_autogen_timestamp_deps.dir
+
+# All Build rule for target.
+CMakeFiles/simulador_autogen_timestamp_deps.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador_autogen_timestamp_deps.dir/build.make CMakeFiles/simulador_autogen_timestamp_deps.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador_autogen_timestamp_deps.dir/build.make CMakeFiles/simulador_autogen_timestamp_deps.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles --progress-num= "Built target simulador_autogen_timestamp_deps"
+.PHONY : CMakeFiles/simulador_autogen_timestamp_deps.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/simulador_autogen_timestamp_deps.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles 0
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/simulador_autogen_timestamp_deps.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles 0
+.PHONY : CMakeFiles/simulador_autogen_timestamp_deps.dir/rule
+
+# Convenience name for target.
+simulador_autogen_timestamp_deps: CMakeFiles/simulador_autogen_timestamp_deps.dir/rule
+.PHONY : simulador_autogen_timestamp_deps
+
+# clean rule for target.
+CMakeFiles/simulador_autogen_timestamp_deps.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador_autogen_timestamp_deps.dir/build.make CMakeFiles/simulador_autogen_timestamp_deps.dir/clean
+.PHONY : CMakeFiles/simulador_autogen_timestamp_deps.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/simulador_autogen.dir
+
+# All Build rule for target.
+CMakeFiles/simulador_autogen.dir/all: CMakeFiles/simulador_autogen_timestamp_deps.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador_autogen.dir/build.make CMakeFiles/simulador_autogen.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador_autogen.dir/build.make CMakeFiles/simulador_autogen.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles --progress-num=8 "Built target simulador_autogen"
+.PHONY : CMakeFiles/simulador_autogen.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/simulador_autogen.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles 1
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/simulador_autogen.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/CMakeFiles 0
+.PHONY : CMakeFiles/simulador_autogen.dir/rule
+
+# Convenience name for target.
+simulador_autogen: CMakeFiles/simulador_autogen.dir/rule
+.PHONY : simulador_autogen
+
+# clean rule for target.
+CMakeFiles/simulador_autogen.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador_autogen.dir/build.make CMakeFiles/simulador_autogen.dir/clean
+.PHONY : CMakeFiles/simulador_autogen.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

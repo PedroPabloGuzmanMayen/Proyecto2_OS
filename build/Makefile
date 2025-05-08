@@ -129,6 +129,32 @@ simulador/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador.dir/build.make CMakeFiles/simulador.dir/build
 .PHONY : simulador/fast
 
+#=============================================================================
+# Target rules for targets named simulador_autogen_timestamp_deps
+
+# Build rule for target.
+simulador_autogen_timestamp_deps: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 simulador_autogen_timestamp_deps
+.PHONY : simulador_autogen_timestamp_deps
+
+# fast build rule for target.
+simulador_autogen_timestamp_deps/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador_autogen_timestamp_deps.dir/build.make CMakeFiles/simulador_autogen_timestamp_deps.dir/build
+.PHONY : simulador_autogen_timestamp_deps/fast
+
+#=============================================================================
+# Target rules for targets named simulador_autogen
+
+# Build rule for target.
+simulador_autogen: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 simulador_autogen
+.PHONY : simulador_autogen
+
+# fast build rule for target.
+simulador_autogen/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador_autogen.dir/build.make CMakeFiles/simulador_autogen.dir/build
+.PHONY : simulador_autogen/fast
+
 gui/gui.o: gui/gui.cpp.o
 .PHONY : gui/gui.o
 
@@ -152,6 +178,54 @@ gui/gui.s: gui/gui.cpp.s
 gui/gui.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador.dir/build.make CMakeFiles/simulador.dir/gui/gui.cpp.s
 .PHONY : gui/gui.cpp.s
+
+simulador_autogen/mocs_compilation.o: simulador_autogen/mocs_compilation.cpp.o
+.PHONY : simulador_autogen/mocs_compilation.o
+
+# target to build an object file
+simulador_autogen/mocs_compilation.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador.dir/build.make CMakeFiles/simulador.dir/simulador_autogen/mocs_compilation.cpp.o
+.PHONY : simulador_autogen/mocs_compilation.cpp.o
+
+simulador_autogen/mocs_compilation.i: simulador_autogen/mocs_compilation.cpp.i
+.PHONY : simulador_autogen/mocs_compilation.i
+
+# target to preprocess a source file
+simulador_autogen/mocs_compilation.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador.dir/build.make CMakeFiles/simulador.dir/simulador_autogen/mocs_compilation.cpp.i
+.PHONY : simulador_autogen/mocs_compilation.cpp.i
+
+simulador_autogen/mocs_compilation.s: simulador_autogen/mocs_compilation.cpp.s
+.PHONY : simulador_autogen/mocs_compilation.s
+
+# target to generate assembly for a file
+simulador_autogen/mocs_compilation.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador.dir/build.make CMakeFiles/simulador.dir/simulador_autogen/mocs_compilation.cpp.s
+.PHONY : simulador_autogen/mocs_compilation.cpp.s
+
+src/algoritmo.o: src/algoritmo.cpp.o
+.PHONY : src/algoritmo.o
+
+# target to build an object file
+src/algoritmo.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador.dir/build.make CMakeFiles/simulador.dir/src/algoritmo.cpp.o
+.PHONY : src/algoritmo.cpp.o
+
+src/algoritmo.i: src/algoritmo.cpp.i
+.PHONY : src/algoritmo.i
+
+# target to preprocess a source file
+src/algoritmo.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador.dir/build.make CMakeFiles/simulador.dir/src/algoritmo.cpp.i
+.PHONY : src/algoritmo.cpp.i
+
+src/algoritmo.s: src/algoritmo.cpp.s
+.PHONY : src/algoritmo.s
+
+# target to generate assembly for a file
+src/algoritmo.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/simulador.dir/build.make CMakeFiles/simulador.dir/src/algoritmo.cpp.s
+.PHONY : src/algoritmo.cpp.s
 
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
@@ -209,10 +283,18 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... simulador_autogen"
+	@echo "... simulador_autogen_timestamp_deps"
 	@echo "... simulador"
 	@echo "... gui/gui.o"
 	@echo "... gui/gui.i"
 	@echo "... gui/gui.s"
+	@echo "... simulador_autogen/mocs_compilation.o"
+	@echo "... simulador_autogen/mocs_compilation.i"
+	@echo "... simulador_autogen/mocs_compilation.s"
+	@echo "... src/algoritmo.o"
+	@echo "... src/algoritmo.i"
+	@echo "... src/algoritmo.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

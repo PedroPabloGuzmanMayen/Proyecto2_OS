@@ -8,7 +8,10 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "" "simulador_autogen/timestamp" "custom" "simulador_autogen/deps"
   "/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/gui/gui.cpp" "CMakeFiles/simulador.dir/gui/gui.cpp.o" "gcc" "CMakeFiles/simulador.dir/gui/gui.cpp.o.d"
+  "/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/build/simulador_autogen/mocs_compilation.cpp" "CMakeFiles/simulador.dir/simulador_autogen/mocs_compilation.cpp.o" "gcc" "CMakeFiles/simulador.dir/simulador_autogen/mocs_compilation.cpp.o.d"
+  "/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/src/algoritmo.cpp" "CMakeFiles/simulador.dir/src/algoritmo.cpp.o" "gcc" "CMakeFiles/simulador.dir/src/algoritmo.cpp.o.d"
   "/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/src/main.cpp" "CMakeFiles/simulador.dir/src/main.cpp.o" "gcc" "CMakeFiles/simulador.dir/src/main.cpp.o.d"
   "/mnt/c/Users/lagop/OneDrive/Desktop/Proyecto2_OS/Proyecto2_OS/src/proceso.cpp" "CMakeFiles/simulador.dir/src/proceso.cpp.o" "gcc" "CMakeFiles/simulador.dir/src/proceso.cpp.o.d"
   )
