@@ -1,28 +1,28 @@
 # 🖥️ Simulador de Sistemas Operativos
 
-Simulador visual desarrollado en C++ con FLTK para representar algoritmos de planificación y mecanismos de sincronización, como parte del curso de **Sistemas Operativos** en la **Universidad del Valle de Guatemala**.
+Simulador visual desarrollado en **C++ con Qt 5** para representar algoritmos de planificación de procesos mediante una interfaz gráfica interactiva con animaciones y diagrama de Gantt. Proyecto realizado como parte del curso de **Sistemas Operativos** en la **Universidad del Valle de Guatemala**.
 
 ---
 
 ## 📦 Requisitos
 
-- CMake >= 3.10
-- g++ con soporte para C++17
-- FLTK (Fast Light Toolkit)
+- CMake >= 3.10  
+- g++ con soporte para C++17  
+- Qt5 (Qt5Widgets)
 
-### ✅ Instalar FLTK (en Ubuntu):
+### ✅ Instalar Qt5 (en Ubuntu / WSL):
 
 ```bash
 sudo apt update
-sudo apt install libfltk1.3-dev
+sudo apt install qtbase5-dev
 ````
 
 ---
 
-## ⚙️ Compilación
+## ⚙️ Compilación (Opción 1)
 
 1. Clona o descarga este repositorio.
-2. Abre terminal en la raíz del proyecto.
+2. Abre una terminal en la raíz del proyecto.
 3. Ejecuta:
 
 ```bash
@@ -34,20 +34,58 @@ make
 
 Esto generará el ejecutable `simulador` dentro de `build/`.
 
+### 🔁 Opción 2: **Recrear la carpeta `build/` desde cero**
+
+(Si se cambian rutas, archivos `.h` con `Q_OBJECT`, o se tienen errores raros), haga lo siguiente:
+
+```bash
+cd ..
+rm -rf build
+mkdir build
+cd build
+cmake ..
+make
+```
+
 ---
 
 ## ▶️ Ejecución
 
-Desde la carpeta `build/`, ejecuta:
+Desde la carpeta `build/`, ejecute:
 
 ```bash
 ./simulador
 ```
 
-Se abrirá una ventana con dos botones:
+Se abrirá una ventana con:
 
-* **Simulación A:** Carga procesos desde un archivo.
-* **Simulación B:** (pendiente de implementación)
+* Un selector de algoritmo (FIFO, SJF, Round Robin, etc.)
+* Campo de Quantum (visible si se elige Round Robin)
+* Botones para ejecutar Simulación A o B
+
+---
+
+## 📂 Archivo de entrada: `procesos.txt`
+
+Ubicado en la carpeta `data/`, este archivo contiene la lista de procesos con el siguiente formato:
+
+```txt
+PID  DURACIÓN  LLEGADA  PRIORIDAD
+P1   5         0        2
+P2   3         1        1
+P3   8         2        3
+P4   6         3        2
+```
+
+---
+
+## 📈 Visualización
+
+Al ejecutar una simulación, se mostrará:
+
+* Orden de ejecución del algoritmo seleccionado
+* Tiempo de espera promedio
+* Animación del **diagrama de Gantt**, que se construye paso a paso con colores por proceso
 
 ---
 
@@ -55,28 +93,31 @@ Se abrirá una ventana con dos botones:
 
 ```
 Proyecto2_OS/
-├── gui/              # Lógica de interfaz con FLTK
+├── gui/              # Interfaz gráfica con Qt
 │   ├── gui.cpp
 │   └── gui.h
 ├── src/              # Lógica de simulación y ejecución
 │   ├── main.cpp
 │   ├── proceso.cpp
+│   ├── algoritmo.cpp
+│   └── ganttwindow.cpp
 ├── include/          # Headers públicos
-│   └── proceso.h
-├── data/             # (Puedes colocar aquí procesos.txt)
+│   ├── proceso.h
+│   ├── algoritmo.h
+│   └── ganttwindow.h
+├── data/             # Archivo de procesos de entrada
+│   └── procesos.txt
 ├── build/            # Archivos generados por CMake (ignorar en Git)
 ├── CMakeLists.txt
 └── README.md
 ```
 
+---
+
 ## 📚 Autores
 
-Nombres de los autores: Pablo Daniel Barillas, Pedro Pablo Gúzman y Esteban Zambrano
-
-Proyecto universitario - Universidad del Valle de Guatemala
-
-Curso: Sistemas Operativos
-
-Docente: Sebastián Galindo
-
-Año: 2025
+**Pablo Daniel Barillas**, **Pedro Pablo Guzmán**, **Esteban Zambrano**
+Proyecto universitario – Universidad del Valle de Guatemala
+Curso: **Sistemas Operativos**
+Docente: **Sebastián Galindo**
+Año: **2025**
