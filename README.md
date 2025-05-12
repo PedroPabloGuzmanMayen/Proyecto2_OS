@@ -22,7 +22,7 @@ sudo apt install qtbase5-dev
 ## ⚙️ Compilación (Opción 1)
 
 1. Clona o descarga este repositorio.
-2. Abre una terminal en la raíz del proyecto.
+2. Abra una terminal en la raíz del proyecto.
 3. Ejecuta:
 
 ```bash
@@ -117,7 +117,11 @@ Proyecto2_OS/
 ## 📚 Autores
 
 **Pablo Daniel Barillas**, **Pedro Pablo Guzmán**, **Esteban Zambrano**
+
 Proyecto universitario – Universidad del Valle de Guatemala
+
 Curso: **Sistemas Operativos**
+
 Docente: **Sebastián Galindo**
+
 Año: **2025**
