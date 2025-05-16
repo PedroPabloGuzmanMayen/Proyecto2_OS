@@ -21,9 +21,9 @@ sudo apt install qtbase5-dev
 
 ## ⚙️ Compilación (Opción 1)
 
-1. Clona o descarga este repositorio.
+1. Clone o descargue este repositorio.
 2. Abra una terminal en la raíz del proyecto.
-3. Ejecuta:
+3. Ejecute:
 
 ```bash
 mkdir build
