@@ -93,6 +93,55 @@ std::vector<Proceso> roundRobin(const std::vector<Proceso>& procesosOriginal, in
     return final;
 }
 
+// ------------------
+// Shortest Job First
+// ------------------
+std::vector<Proceso> shortestJobFirst(const std::vector<Proceso>& procesos) {
+    // Lista mutable de procesos pendientes
+    auto pendientes = procesos;
+    std::vector<Proceso> ejecucion;
+    int tiempo = 0;
+
+    // Orden inicial por llegada
+    std::sort(pendientes.begin(), pendientes.end(),
+              [](auto& a, auto& b){ return a.arrivalTime < b.arrivalTime; });
+
+    while (!pendientes.empty()) {
+        // Filtrar los que ya han llegado
+        std::vector<Proceso*> ready;
+        for (auto& p : pendientes)
+            if (p.arrivalTime <= tiempo)
+                ready.push_back(&p);
+
+        if (ready.empty()) {
+            // si no hay ninguno listo, avanzar al siguiente arrivalTime
+            tiempo = pendientes.front().arrivalTime;
+            continue;
+        }
+
+        // Elegir el de menor burstTime
+        auto cmpBurst = [](Proceso* a, Proceso* b) {
+            return a->burstTime < b->burstTime;
+        };
+        auto elegido = *std::min_element(ready.begin(), ready.end(), cmpBurst);
+
+        // Ejecutar
+        elegido->startTime = tiempo;
+        elegido->completionTime = tiempo + elegido->burstTime;
+        elegido->turnaroundTime = elegido->completionTime - elegido->arrivalTime;
+        elegido->waitingTime = elegido->startTime - elegido->arrivalTime;
+        tiempo = elegido->completionTime;
+
+        // Añadir a la lista de resultado y remover de pendientes
+        ejecucion.push_back(*elegido);
+        pendientes.erase(std::remove_if(pendientes.begin(), pendientes.end(),
+                          [&](const Proceso& p){ return p.pid == elegido->pid; }),
+                          pendientes.end());
+    }
+
+    return ejecucion;
+}
+
 double calcularTiempoEsperaPromedio(const std::vector<Proceso>& procesosOriginal, const std::vector<Proceso>& ejecucion) {
     double total = 0.0;
     for (const auto& p : ejecucion)
