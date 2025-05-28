@@ -61,7 +61,7 @@ SimuladorGUI::SimuladorGUI(QWidget *parent)
 }
 
 void SimuladorGUI::onSimulacionAClicked() {
-    auto procesos = cargarProcesosDesdeArchivo("data/procesos.txt");
+    auto procesos = cargarProcesosDesdeArchivo("../data/procesos.txt");
 
     if (procesos.empty()) {
         QMessageBox::warning(this, "Error", "No se cargaron procesos.");
