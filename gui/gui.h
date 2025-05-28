@@ -6,6 +6,9 @@
 #include <QComboBox>
 #include <QSpinBox>
 #include <QLabel>
+#include <QVBoxLayout>
+
+#include "ganttwindow.h"
 
 class SimuladorGUI : public QMainWindow {
     Q_OBJECT
@@ -23,6 +26,9 @@ private:
     QComboBox *comboAlgoritmo;
     QSpinBox *spinQuantum;
     QLabel *labelQuantum;
+
+    GanttWindow *ganttWidget;      // Diagrama de Gantt actual
+    QVBoxLayout *layout;           // Layout principal para poder modificarlo dinámicamente
 };
 
 #endif

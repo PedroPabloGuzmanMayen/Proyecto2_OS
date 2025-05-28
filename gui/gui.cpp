@@ -11,12 +11,11 @@
 #include "ganttwindow.h" 
 
 SimuladorGUI::SimuladorGUI(QWidget *parent)
-    : QMainWindow(parent) {
+    : QMainWindow(parent), ganttWidget(nullptr) {
 
     QWidget *central = new QWidget(this);
-    QVBoxLayout *layout = new QVBoxLayout(central);
+    layout = new QVBoxLayout(central);  // ahora es miembro
 
-    // Crear widgets
     comboAlgoritmo = new QComboBox(this);
     comboAlgoritmo->addItems({
         "First In First Out (FIFO)",
@@ -34,25 +33,21 @@ SimuladorGUI::SimuladorGUI(QWidget *parent)
     btnSimA = new QPushButton("Simulación A", this);
     btnSimB = new QPushButton("Simulación B", this);
 
-    // Agregar widgets al layout
     layout->addWidget(comboAlgoritmo);
     layout->addWidget(labelQuantum);
     layout->addWidget(spinQuantum);
     layout->addWidget(btnSimA);
     layout->addWidget(btnSimB);
 
-    // Ocultar quantum al inicio
     labelQuantum->setVisible(false);
     spinQuantum->setVisible(false);
 
-    // Mostrar quantum si se elige Round Robin
     connect(comboAlgoritmo, &QComboBox::currentTextChanged, this, [=](const QString &text) {
         bool esRR = text.contains("Round Robin", Qt::CaseInsensitive);
         labelQuantum->setVisible(esRR);
         spinQuantum->setVisible(esRR);
     });
 
-    // Conectar botones
     connect(btnSimA, &QPushButton::clicked, this, &SimuladorGUI::onSimulacionAClicked);
     connect(btnSimB, &QPushButton::clicked, this, &SimuladorGUI::onSimulacionBClicked);
 
@@ -70,12 +65,17 @@ void SimuladorGUI::onSimulacionAClicked() {
 
     QString algoritmo = comboAlgoritmo->currentText();
     int quantum = spinQuantum->value();
+
     std::vector<Proceso> ejecutados;
+    std::vector<BloqueGantt> bloques;
 
     if (algoritmo.contains("FIFO", Qt::CaseInsensitive)) {
         ejecutados = fifo(procesos);
+        for (const auto& p : ejecutados) {
+            bloques.push_back({p.pid, p.startTime, p.burstTime});
+        }
     } else if (algoritmo.contains("Round Robin", Qt::CaseInsensitive)) {
-        ejecutados = roundRobin(procesos, quantum);
+        ejecutados = roundRobin(procesos, quantum, bloques);
     } else {
         QMessageBox::information(this, "Info", "Ese algoritmo aún no está implementado.");
         return;
@@ -83,19 +83,23 @@ void SimuladorGUI::onSimulacionAClicked() {
 
     QString resultado = "Orden de ejecución:\n";
     for (const auto& p : ejecutados) {
-        resultado += p.pid + "\n";
+        resultado += QString("%1 (inicio: %2)\n").arg(p.pid).arg(p.startTime);
     }
-    
-    // Calcular tiempo de espera promedio
+
     double promedio = calcularTiempoEsperaPromedio(procesos, ejecutados);
-    resultado += "\nTiempo de espera promedio: ";
-    resultado += QString::number(promedio, 'f', 2);
-    // Mostrar diagrama de Gantt
-    GanttWindow *gantt = new GanttWindow(ejecutados, this);
-    gantt->setAttribute(Qt::WA_DeleteOnClose);  // se elimina al cerrarse
-    gantt->show();
-    
-    QMessageBox::information(this, "Resultado", resultado);    
+    resultado += "\nTiempo de espera promedio: " + QString::number(promedio, 'f', 2);
+
+    // Mostrar Gantt embebido
+    if (ganttWidget != nullptr) {
+        layout->removeWidget(ganttWidget);
+        delete ganttWidget;
+        ganttWidget = nullptr;
+    }
+
+    ganttWidget = new GanttWindow(bloques, this);
+    layout->addWidget(ganttWidget);
+
+    QMessageBox::information(this, "Resultado", resultado);
 }
 
 void SimuladorGUI::onSimulacionBClicked() {

@@ -3,42 +3,67 @@
 #include <QFrame>
 #include <QColor>
 #include <QRandomGenerator>
+#include <QScrollArea>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 
-GanttWindow::GanttWindow(const std::vector<Proceso>& ejecucion, QWidget *parent)
-    : QWidget(parent), ejecucion(ejecucion), indice(0) {
+GanttWindow::GanttWindow(const std::vector<BloqueGantt>& bloques, QWidget *parent)
+    : QWidget(parent), bloques(bloques), indice(0) {
 
-    layout = new QHBoxLayout(this);
-    layout->setSpacing(2);
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    layout = new QHBoxLayout();
+    layout->setSpacing(4);
 
-    setLayout(layout);
-    setWindowTitle("Diagrama de Gantt");
+    QLabel *titulo = new QLabel("Diagrama de Gantt", this);
+    titulo->setAlignment(Qt::AlignCenter);
+    titulo->setStyleSheet("font-weight: bold; font-size: 16px;");
+    mainLayout->addWidget(titulo);
 
-    // Asignar color único a cada proceso
-    for (const auto& p : ejecucion) {
-        if (colores.find(p.pid) == colores.end()) {
+    QHBoxLayout *leyendaLayout = new QHBoxLayout();
+    for (const auto& b : bloques) {
+        if (colores.find(b.pid) == colores.end()) {
             QColor color = QColor::fromHsv(QRandomGenerator::global()->bounded(360), 255, 200);
-            colores[p.pid] = color;
+            colores[b.pid] = color;
+
+            QLabel *leyenda = new QLabel(b.pid);
+            leyenda->setFixedWidth(50);
+            leyenda->setAlignment(Qt::AlignCenter);
+            leyenda->setStyleSheet(QString("background-color: %1; border: 1px solid gray;")
+                                   .arg(color.name()));
+            leyendaLayout->addWidget(leyenda);
         }
     }
+    mainLayout->addLayout(leyendaLayout);
 
-    // Timer para animación paso a paso
+    QWidget *bloquesContainer = new QWidget();
+    bloquesContainer->setLayout(layout);
+    QScrollArea *scrollArea = new QScrollArea();
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setWidget(bloquesContainer);
+    mainLayout->addWidget(scrollArea);
+
+    setLayout(mainLayout);
+    setWindowTitle("Diagrama de Gantt");
+    resize(600, 200);
+
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &GanttWindow::mostrarSiguienteBloque);
-    timer->start(500);  // muestra un bloque cada 500ms
+    timer->start(500);
 }
 
 void GanttWindow::mostrarSiguienteBloque() {
-    if (indice >= ejecucion.size()) {
+    if (indice >= bloques.size()) {
         timer->stop();
         return;
     }
 
-    const Proceso& p = ejecucion[indice++];
-    QLabel *bloque = new QLabel(p.pid, this);
+    const BloqueGantt& b = bloques[indice++];
+    QLabel *bloque = new QLabel(QString("%1\n%2-%3").arg(b.pid).arg(b.inicio).arg(b.inicio + b.duracion), this);
     bloque->setAlignment(Qt::AlignCenter);
-    bloque->setFixedSize(40, 40);
+    bloque->setFixedSize(b.duracion * 20, 40);  // Escalado horizontal
     bloque->setFrameShape(QFrame::Box);
-    bloque->setStyleSheet(QString("background-color: %1;").arg(colores[p.pid].name()));
+    bloque->setStyleSheet(QString("background-color: %1; border: 1px solid black;")
+                          .arg(colores[b.pid].name()));
 
     layout->addWidget(bloque);
 }

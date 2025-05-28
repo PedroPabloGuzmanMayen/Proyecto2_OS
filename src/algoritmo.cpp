@@ -4,16 +4,30 @@
 #include <map>
 
 std::vector<Proceso> fifo(const std::vector<Proceso>& procesos) {
-    std::vector<Proceso> orden = procesos;
+    std::vector<Proceso> resultado = procesos;
 
-    std::sort(orden.begin(), orden.end(), [](const Proceso& a, const Proceso& b) {
+    std::sort(resultado.begin(), resultado.end(), [](const Proceso& a, const Proceso& b) {
         return a.arrivalTime < b.arrivalTime;
     });
 
-    return orden;
+    int tiempo = 0;
+
+    for (auto& p : resultado) {
+        if (tiempo < p.arrivalTime)
+            tiempo = p.arrivalTime;
+
+        p.startTime = tiempo;
+        p.completionTime = tiempo + p.burstTime;
+        p.waitingTime = p.startTime - p.arrivalTime;
+        p.turnaroundTime = p.completionTime - p.arrivalTime;
+
+        tiempo = p.completionTime;
+    }
+
+    return resultado;
 }
 
-std::vector<Proceso> roundRobin(const std::vector<Proceso>& procesosOriginal, int quantum) {
+std::vector<Proceso> roundRobin(const std::vector<Proceso>& procesosOriginal, int quantum, std::vector<BloqueGantt>& bloques) {
     std::vector<Proceso> resultado;
     std::vector<Proceso> procesos = procesosOriginal;
 
@@ -22,71 +36,67 @@ std::vector<Proceso> roundRobin(const std::vector<Proceso>& procesosOriginal, in
     });
 
     std::queue<Proceso> cola;
+    std::map<QString, int> tiempoRestante;
+    std::map<QString, int> primeraEjecucion;
+    std::map<QString, int> ultimaEjecucion;
+
+    for (const auto& p : procesos)
+        tiempoRestante[p.pid] = p.burstTime;
+
     int tiempo = 0;
     size_t i = 0;
 
-    std::map<QString, int> bt_restantes;
-    for (const auto& p : procesos)
-        bt_restantes[p.pid] = p.burstTime;
-
-    while (i < procesos.size() || !cola.empty()) {
-        // Encolar procesos que han llegado
+    while (!cola.empty() || i < procesos.size()) {
         while (i < procesos.size() && procesos[i].arrivalTime <= tiempo) {
             cola.push(procesos[i]);
             i++;
         }
 
         if (cola.empty()) {
-            tiempo++; // avanzar si no hay proceso listo
+            tiempo++;
             continue;
         }
 
         Proceso actual = cola.front();
         cola.pop();
 
-        int restante = bt_restantes[actual.pid];
-        int ejecutar = std::min(restante, quantum);
+        if (primeraEjecucion.find(actual.pid) == primeraEjecucion.end())
+            primeraEjecucion[actual.pid] = tiempo;
 
-        // Ejecutar el proceso
-        bt_restantes[actual.pid] -= ejecutar;
+        int ejecutar = std::min(quantum, tiempoRestante[actual.pid]);
+        bloques.push_back({actual.pid, tiempo, ejecutar});  // ← Aquí se añade el bloque
+        tiempoRestante[actual.pid] -= ejecutar;
         tiempo += ejecutar;
+        ultimaEjecucion[actual.pid] = tiempo;
 
-        resultado.push_back(actual);  // Se guarda cada aparición en orden de ejecución
+        resultado.push_back(actual);
 
-        // Encolar nuevos procesos que llegaron durante ejecución
         while (i < procesos.size() && procesos[i].arrivalTime <= tiempo) {
             cola.push(procesos[i]);
             i++;
         }
 
-        // Si todavía le queda tiempo de CPU, lo reencolamos
-        if (bt_restantes[actual.pid] > 0) {
+        if (tiempoRestante[actual.pid] > 0) {
             cola.push(actual);
         }
     }
 
-    return resultado;
+    std::vector<Proceso> final;
+    for (auto p : procesosOriginal) {
+        p.startTime = primeraEjecucion[p.pid];
+        p.completionTime = ultimaEjecucion[p.pid];
+        p.turnaroundTime = p.completionTime - p.arrivalTime;
+        p.waitingTime = p.turnaroundTime - p.burstTime;
+        final.push_back(p);
+    }
+
+    return final;
 }
 
 double calcularTiempoEsperaPromedio(const std::vector<Proceso>& procesosOriginal, const std::vector<Proceso>& ejecucion) {
-    std::map<QString, int> arrivalMap;
-    for (const auto& p : procesosOriginal)
-        arrivalMap[p.pid] = p.arrivalTime;
+    double total = 0.0;
+    for (const auto& p : ejecucion)
+        total += p.waitingTime;
 
-    std::map<QString, int> primeraEjecucion;
-    int tiempo = 0;
-
-    for (const auto& p : ejecucion) {
-        if (primeraEjecucion.find(p.pid) == primeraEjecucion.end()) {
-            primeraEjecucion[p.pid] = tiempo;
-        }
-        tiempo++;
-    }
-
-    double totalEspera = 0.0;
-    for (const auto& [pid, inicio] : primeraEjecucion) {
-        totalEspera += inicio - arrivalMap[pid];
-    }
-
-    return totalEspera / procesosOriginal.size();
+    return ejecucion.empty() ? 0.0 : total / ejecucion.size();
 }

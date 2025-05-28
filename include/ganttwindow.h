@@ -6,19 +6,21 @@
 #include <QHBoxLayout>
 #include <vector>
 #include <map>
-#include "proceso.h"
+#include <QString>
+#include <QColor>
+#include "algoritmo.h"
 
 class GanttWindow : public QWidget {
     Q_OBJECT
 
 public:
-    GanttWindow(const std::vector<Proceso>& ejecucion, QWidget *parent = nullptr);
+    GanttWindow(const std::vector<BloqueGantt>& bloques, QWidget *parent = nullptr);
 
 private slots:
     void mostrarSiguienteBloque();
 
 private:
-    std::vector<Proceso> ejecucion;
+    std::vector<BloqueGantt> bloques;
     QHBoxLayout *layout;
     QTimer *timer;
     int indice;
