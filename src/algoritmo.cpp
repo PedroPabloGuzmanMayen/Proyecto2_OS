@@ -142,6 +142,53 @@ std::vector<Proceso> shortestJobFirst(const std::vector<Proceso>& procesos) {
     return ejecucion;
 }
 
+// -------------------
+// Priority Scheduling 
+// -------------------
+std::vector<Proceso> priorityScheduling(const std::vector<Proceso>& procesos) {
+    auto pendientes = procesos;
+    std::vector<Proceso> ejecucion;
+    int tiempo = 0;
+
+    // Orden inicial por llegada
+    std::sort(pendientes.begin(), pendientes.end(),
+              [](auto& a, auto& b){ return a.arrivalTime < b.arrivalTime; });
+
+    while (!pendientes.empty()) {
+        // Filtrar los que ya han llegado
+        std::vector<Proceso*> ready;
+        for (auto& p : pendientes)
+            if (p.arrivalTime <= tiempo)
+                ready.push_back(&p);
+
+        if (ready.empty()) {
+            tiempo = pendientes.front().arrivalTime;
+            continue;
+        }
+
+        // Elegir el de mayor prioridad (número menor = más alta prioridad)
+        auto cmpPriority = [](Proceso* a, Proceso* b) {
+            return a->priority < b->priority;
+        };
+        auto elegido = *std::min_element(ready.begin(), ready.end(), cmpPriority);
+
+        // Ejecutar
+        elegido->startTime = tiempo;
+        elegido->completionTime = tiempo + elegido->burstTime;
+        elegido->turnaroundTime = elegido->completionTime - elegido->arrivalTime;
+        elegido->waitingTime = elegido->startTime - elegido->arrivalTime;
+        tiempo = elegido->completionTime;
+
+        // Añadir y remover
+        ejecucion.push_back(*elegido);
+        pendientes.erase(std::remove_if(pendientes.begin(), pendientes.end(),
+                          [&](const Proceso& p){ return p.pid == elegido->pid; }),
+                          pendientes.end());
+    }
+
+    return ejecucion;
+}
+
 double calcularTiempoEsperaPromedio(const std::vector<Proceso>& procesosOriginal, const std::vector<Proceso>& ejecucion) {
     double total = 0.0;
     for (const auto& p : ejecucion)
