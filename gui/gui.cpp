@@ -88,6 +88,13 @@ void SimuladorGUI::onSimulacionAClicked() {
         return;
     }
 
+    // Construcción genérica de bloques **solo si siguen vacíos**:
+    if (bloques.empty()) {
+        for (const auto &p : ejecutados) {
+            bloques.push_back({ p.pid, p.startTime, p.burstTime });
+        }
+    }
+
     QString resultado = "Orden de ejecución:\n";
     for (const auto& p : ejecutados) {
         resultado += QString("%1 (inicio: %2)\n").arg(p.pid).arg(p.startTime);
