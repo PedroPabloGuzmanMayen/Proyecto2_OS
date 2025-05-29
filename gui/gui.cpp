@@ -69,14 +69,21 @@ void SimuladorGUI::onSimulacionAClicked() {
     std::vector<Proceso> ejecutados;
     std::vector<BloqueGantt> bloques;
 
+    // Selección de algoritmo:
     if (algoritmo.contains("FIFO", Qt::CaseInsensitive)) {
         ejecutados = fifo(procesos);
-        for (const auto& p : ejecutados) {
-            bloques.push_back({p.pid, p.startTime, p.burstTime});
-        }
-    } else if (algoritmo.contains("Round Robin", Qt::CaseInsensitive)) {
+    }
+    else if (algoritmo.contains("Shortest Job First", Qt::CaseInsensitive)) {
+        ejecutados = shortestJobFirst(procesos);
+    }
+    else if (algoritmo.contains("Priority Scheduling", Qt::CaseInsensitive)) {
+        ejecutados = priorityScheduling(procesos);
+    }
+    else if (algoritmo.contains("Round Robin", Qt::CaseInsensitive)) {
         ejecutados = roundRobin(procesos, quantum, bloques);
-    } else {
+        // roundRobin ya llenó 'bloques'
+    }
+    else {
         QMessageBox::information(this, "Info", "Ese algoritmo aún no está implementado.");
         return;
     }
