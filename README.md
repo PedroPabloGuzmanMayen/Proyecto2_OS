@@ -49,7 +49,7 @@ make
 
 ---
 
-## ▶️ Ejecución
+## ▶️ Ejecución del simulador
 
 Desde la carpeta `build/`, ejecute:
 
@@ -62,6 +62,16 @@ Se abrirá una ventana con:
 * Un selector de algoritmo (FIFO, SJF, Round Robin, etc.)
 * Campo de Quantum (visible si se elige Round Robin)
 * Botones para ejecutar Simulación A o B
+
+---
+
+## ▶️ Ejecución de Tests
+
+Desde la carpeta `build/`, ejecute:
+
+```bash
+./tests
+```
 
 ---
 
