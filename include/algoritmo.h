@@ -18,5 +18,7 @@ double calcularTiempoEsperaPromedio(const std::vector<Proceso>& procesosOriginal
 std::vector<Proceso> shortestJobFirst(const std::vector<Proceso>& procesos);
 //Priority Scheduling
 std::vector<Proceso> priorityScheduling(const std::vector<Proceso>& procesos);
+//SRT
+std::vector<Proceso> shortestRemainingTime(const std::vector<Proceso>& procesos, std::vector<BloqueGantt>& bloques);
 
 #endif
