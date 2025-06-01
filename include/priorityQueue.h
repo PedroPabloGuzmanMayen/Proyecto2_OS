@@ -1,24 +1,39 @@
 #ifndef PRIORITYQUEUE_H
 #define PRIORITYQUEUE_H
 
-#include <iostream>
 #include <vector>
-#include <string>
+#include <QString>
 #include "proceso.h"
 
-using namespace std;
+// Cola de prioridad mínima por burstTime
 class priorityQueue {
-    public:
-        void insertNewValue(); // Método para insertar un nuevo valor
-        void push(); //Eliminar el elemento con mayor prioridad
-        void deleteValue(); // Eliminar un nodo el queue
-        void goUp(); // Si un nuevo elemento insertado  viola el constraint del heap 
+public:
+    priorityQueue();
+    ~priorityQueue();
 
-    private: 
-        void getParent(int index); //Obtener el nodo padre de un nodo
-        void getSon(int position, int index); //Obtener el hijo izquierdo o derecho de un nodo
-        vector<Proceso> heap;  //Vector con los procesos que vamos a utilizar
+    void insertNewValue(const Proceso& proceso);
+    Proceso top();
+    Proceso pop();
+    bool deleteValue(const QString& pid);
+    bool isEmpty();
+    int size();
+    void printQueue();
+    void clear();
 
+private:
+    std::vector<Proceso> heap;
+
+    int getParent(int index);
+    int getLeftChild(int index);
+    int getRightChild(int index);
+    bool hasLeftChild(int index);
+    bool hasRightChild(int index);
+    bool hasParent(int index);
+    void swap(int index1, int index2);
+    void goUp();
+    void goDown();
+    void goUpFrom(int index);
+    void goDownFrom(int index);
 };
 
-#endif
+#endif // PRIORITYQUEUE_H

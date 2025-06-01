@@ -1,131 +1,142 @@
 // src/synchronizer.cpp
+
 #include "synchronizer.h"
-#include <fstream>
-#include <sstream>
+#include "proceso.h"
+#include <QFile>
+#include <QTextStream>
+#include <QDebug>
 #include <algorithm>
 #include <queue>
 #include <unordered_map>
-#include <iostream>
 
-// Trim de espacios en cabeza y cola
-static std::string trim(const std::string &s) {
-    auto b = s.find_first_not_of(" \t\r\n");
-    auto e = s.find_last_not_of(" \t\r\n");
-    return (b == std::string::npos) ? "" : s.substr(b, e - b + 1);
-}
-
-// --- Parsers ---
-
-std::vector<Proceso> loadProcesos(const std::string &path) {
+/**
+ * Carga procesos desde archivo. Cada línea con formato:
+ *   <PID>,<BT>,<AT>,<Priority>
+ */
+std::vector<Proceso> loadProcesos(const QString &ruta) {
     std::vector<Proceso> v;
-    std::ifstream f(path);
-    if (!f) {
-        std::cerr << "No se pudo abrir procesos en: " << path << "\n";
+    QFile f(ruta);
+    if (!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug() << "No se pudo abrir procesos en:" << ruta;
         return v;
     }
-    std::string line;
-    while (std::getline(f, line)) {
-        line = trim(line);
-        if (line.empty()) continue;
-        std::istringstream ss(line);
-        std::string pidStr;
-        int bt, at, pr;
-        char comma;
-        // Leemos hasta la coma, luego los ints
-        if (std::getline(ss, pidStr, ',') &&
-            ss >> bt >> comma >> at >> comma >> pr)
-        {
+    QTextStream in(&f);
+    while (!in.atEnd()) {
+        QString line = in.readLine().trimmed();
+        if (line.isEmpty()) continue;
+        QStringList partes = line.split(",");
+        if (partes.size() >= 4) {
             Proceso p;
-            p.pid         = QString::fromStdString(trim(pidStr));
-            p.burstTime   = bt;
-            p.arrivalTime = at;
-            p.priority    = pr;
+            p.pid         = partes[0].trimmed();
+            p.burstTime   = partes[1].trimmed().toInt();
+            p.arrivalTime = partes[2].trimmed().toInt();
+            p.priority    = partes[3].trimmed().toInt();
             v.push_back(p);
         } else {
-            std::cerr << "Línea procesos mal formateada: " << line << "\n";
+            qDebug() << "Línea procesos mal formateada:" << line;
         }
     }
+    f.close();
     return v;
 }
 
-std::vector<Recurso> loadRecursos(const std::string &path) {
+/**
+ * Carga recursos desde archivo. Cada línea con formato:
+ *   <NOMBRE>,<COUNT>
+ */
+std::vector<Recurso> loadRecursos(const QString &ruta) {
     std::vector<Recurso> v;
-    std::ifstream f(path);
-    if (!f) {
-        std::cerr << "No se pudo abrir recursos en: " << path << "\n";
+    QFile f(ruta);
+    if (!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug() << "No se pudo abrir recursos en:" << ruta;
         return v;
     }
-    std::string line;
-    while (std::getline(f, line)) {
-        line = trim(line);
-        if (line.empty()) continue;
-        std::istringstream ss(line);
-        std::string name;
-        int cnt;
-        char comma;
-        if (std::getline(ss, name, ',') && ss >> cnt) {
-            v.push_back({ trim(name), cnt });
+    QTextStream in(&f);
+    while (!in.atEnd()) {
+        QString line = in.readLine().trimmed();
+        if (line.isEmpty()) continue;
+        QStringList partes = line.split(",");
+        if (partes.size() >= 2) {
+            Recurso r;
+            r.name  = partes[0].trimmed();
+            r.count = partes[1].trimmed().toInt();
+            v.push_back(r);
         } else {
-            std::cerr << "Línea recursos mal formateada: " << line << "\n";
+            qDebug() << "Línea recursos mal formateada:" << line;
         }
     }
+    f.close();
     return v;
 }
 
-std::vector<Accion> loadAcciones(const std::string &path) {
+/**
+ * Carga acciones desde archivo. Cada línea con formato:
+ *   <PID>,<ACTION>,<RECURSO>,<CICLO>
+ */
+std::vector<Accion> loadAcciones(const QString &ruta) {
     std::vector<Accion> v;
-    std::ifstream f(path);
-    if (!f) {
-        std::cerr << "No se pudo abrir acciones en: " << path << "\n";
+    QFile f(ruta);
+    if (!f.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug() << "No se pudo abrir acciones en:" << ruta;
         return v;
     }
-    std::string line;
-    while (std::getline(f, line)) {
-        line = trim(line);
-        if (line.empty()) continue;
-        std::istringstream ss(line);
-        std::string pidStr, typeStr, recStr;
-        int cycle;
-        // Se lee tres campos hasta coma y luego el ciclo
-        if (std::getline(ss, pidStr, ',') &&
-            std::getline(ss, typeStr, ',') &&
-            std::getline(ss, recStr, ',') &&
-            ss >> cycle)
-        {
+    QTextStream in(&f);
+    while (!in.atEnd()) {
+        QString line = in.readLine().trimmed();
+        if (line.isEmpty()) continue;
+        QStringList partes = line.split(",");
+        if (partes.size() >= 4) {
             Accion a;
-            a.pid     = trim(pidStr);
-            a.type    = (trim(typeStr) == "READ"
-                         ? ActionType::READ
-                         : ActionType::WRITE);
-            a.recurso = trim(recStr);
-            a.cycle   = cycle;
+            a.pid     = partes[0].trimmed();
+            QString typeStr = partes[1].trimmed().toUpper();
+            a.type    = (typeStr == "READ") ? ActionType::READ : ActionType::WRITE;
+            a.recurso = partes[2].trimmed();
+            a.cycle   = partes[3].trimmed().toInt();
             v.push_back(a);
         } else {
-            std::cerr << "Línea acciones mal formateada: " << line << "\n";
+            qDebug() << "Línea acciones mal formateada:" << line;
         }
     }
-    // Ordenamos por ciclo
+    f.close();
+
+    // Ordenar acciones por ciclo ascendente
     std::sort(v.begin(), v.end(),
-              [](auto &A, auto &B){ return A.cycle < B.cycle; });
+              [](const Accion &A, const Accion &B) {
+                  return A.cycle < B.cycle;
+              });
     return v;
 }
 
-// --- Simulación ---
-
-// Estado interno de cada recurso
+/**
+ * Estado interno de cada recurso para la simulación:
+ * - capacity = cuántas instancias tiene (1 = mutex, >1 = semáforo).
+ * - endTimes = min-heap de ciclos en que cada acceso termina (start + 1).
+ */
 struct ResState {
     int capacity = 0;
     std::priority_queue<int,
         std::vector<int>,
-        std::greater<int>> endTimes; // min-heap de tiempos de fin
+        std::greater<int>> endTimes;
 };
 
+/**
+ * Simula la sección B (mutex/semáforo):
+ * - `acciones`: vector de Accion ordenado por ciclo.
+ * - `recursosVec`: vector inicial de Recursos con su contador.
+ *
+ * Para cada acción:
+ *   1) Libera accesos finalizados en el ciclo actual (pop de endTimes).
+ *   2) Si `used >= capacity`, genera un BloqueSync de WAIT y ajusta el ciclo de acceso
+ *      al `nextFree` antes de hacer ACCESS.
+ *   3) Siempre genera un BloqueSync de ACCESS (duration=1) en `startAccess` y programa
+ *      su fin en `startAccess + 1` (push a endTimes).
+ */
 std::vector<BloqueSync> simulateSync(
     const std::vector<Accion> &acciones,
-    const std::vector<Recurso> &recursosVec)
+    std::vector<Recurso> &recursosVec)
 {
-    // Construimos un mapa recurso→estado
-    std::unordered_map<std::string, ResState> resMap;
+    // Mapa recurso → estado (capacidad + min-heap de endTimes)
+    std::unordered_map<QString, ResState> resMap;
     for (const auto &r : recursosVec) {
         resMap[r.name].capacity = r.count;
     }
@@ -133,28 +144,27 @@ std::vector<BloqueSync> simulateSync(
     std::vector<BloqueSync> timeline;
 
     for (const auto &a : acciones) {
+        // Buscar el estado del recurso
         auto it = resMap.find(a.recurso);
         if (it == resMap.end()) {
-            std::cerr << "Acción sobre recurso desconocido: "
-                      << a.recurso << "\n";
+            qDebug() << "Acción sobre recurso desconocido:" << a.recurso;
             continue;
         }
         auto &rs = it->second;
 
-        // Liberar accesos ya finalizados
-        while (!rs.endTimes.empty() && rs.endTimes.top() <= a.cycle)
+        // 1) Liberar accesos finalizados en este ciclo
+        while (!rs.endTimes.empty() && rs.endTimes.top() <= a.cycle) {
             rs.endTimes.pop();
+        }
 
         int used = rs.endTimes.size();
         int startAccess = a.cycle;
 
-        // Si se supera la capacidad, esperamos hasta nextFree
+        // 2) Si excede capacidad, genera WAIT y ajusta startAccess al nextFree
         if (rs.capacity > 0 && used >= rs.capacity) {
-            int nextFree = rs.endTimes.empty()
-                         ? a.cycle
-                         : rs.endTimes.top();
+            int nextFree = rs.endTimes.empty() ? a.cycle : rs.endTimes.top();
             if (nextFree > a.cycle) {
-                // Bloque WAIT
+                // Bloque WAIT (duración = nextFree - a.cycle)
                 timeline.push_back({
                     a.pid,
                     a.recurso,
@@ -162,14 +172,15 @@ std::vector<BloqueSync> simulateSync(
                     nextFree - a.cycle,
                     false
                 });
+                startAccess = nextFree;
             }
-            // Usamos esa plaza
-            if (!rs.endTimes.empty())
+            // Consumir una instancia disponible (pop de endTimes) si no está vacío
+            if (!rs.endTimes.empty()) {
                 rs.endTimes.pop();
-            startAccess = nextFree;
+            }
         }
 
-        // Bloque ACCESS (duración = 1 ciclo)
+        // 3) Bloque ACCESS (duration = 1 ciclo) en startAccess
         timeline.push_back({
             a.pid,
             a.recurso,
@@ -177,7 +188,7 @@ std::vector<BloqueSync> simulateSync(
             1,
             true
         });
-        // Programamos fin de acceso
+        // Programar fin de acceso en startAccess + 1
         rs.endTimes.push(startAccess + 1);
     }
 

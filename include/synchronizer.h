@@ -1,62 +1,65 @@
-// include/synchronizer.h
 #ifndef SYNCHRONIZER_H
 #define SYNCHRONIZER_H
 
 #include "proceso.h"
-#include <string>
+#include <QString>
 #include <vector>
-#include <unordered_map>
 
 /** Tipo de acción: lectura o escritura */
 enum class ActionType { READ, WRITE };
 
 /** Representa un recurso con su contador (1 = mutex, >1 = semáforo) */
 struct Recurso {
-    std::string name;
+    QString name;
     int count;
 };
 
 /** Representa una acción de un proceso sobre un recurso en un ciclo dado */
 struct Accion {
-    std::string pid;
+    QString pid;
     ActionType type;
-    std::string recurso;
+    QString recurso;
     int cycle;
 };
 
 /** Bloque para la línea de tiempo: WAIT o ACCESS de un recurso */
 struct BloqueSync {
-    std::string pid;
-    std::string recurso;
+    QString pid;
+    QString recurso;
     int start;      // ciclo de inicio
     int duration;   // siempre 1 ciclo
     bool accessed;  // true = ACCESS, false = WAIT
 };
 
 /**
- * Carga procesos desde un archivo 
+ * Carga procesos desde un archivo (usando Proceso definido en proceso.h).
+ * - Formato de cada línea en <ruta>:
+ *     <PID>,<BT>,<AT>,<Priority>
  */
-std::vector<Proceso> loadProcesos(const std::string &path);
+std::vector<Proceso> loadProcesos(const QString &ruta);
 
 /**
  * Carga recursos desde un archivo:
- * Formato por línea: <NOMBRE>, <COUNT>
+ * - Formato de cada línea:
+ *     <NOMBRE>,<COUNT>
  */
-std::vector<Recurso> loadRecursos(const std::string &path);
+std::vector<Recurso> loadRecursos(const QString &ruta);
 
 /**
  * Carga acciones desde un archivo:
- * Formato por línea: <PID>, <ACTION>, <RECURSO>, <CICLO>
+ * - Formato de cada línea:
+ *     <PID>,<ACTION>,<RECURSO>,<CICLO>
  */
-std::vector<Accion> loadAcciones(const std::string &path);
+std::vector<Accion> loadAcciones(const QString &ruta);
 
 /**
- * Simula la sección B (mutex/semáforo) y devuelve bloques WAIT/ACCESS.
- * - `acciones` debe estar ordenado por cycle.
- * - `recursos` da el contador inicial de cada recurso.
+ * Simula la sección B (mutex/semáforo) y devuelve bloques WAIT/ACCESS.
+ * - `acciones` debe estar ordenado por cycle ascendente.
+ * - `recursos` proporciona el contador inicial de cada recurso.
  */
 std::vector<BloqueSync> simulateSync(
     const std::vector<Accion> &acciones,
-    const std::vector<Recurso> &recursos);
+    std::vector<Recurso> &recursos
+);
 
 #endif // SYNCHRONIZER_H

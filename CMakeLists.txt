@@ -8,26 +8,37 @@ set(CMAKE_AUTORCC ON)
 
 find_package(Qt5 REQUIRED COMPONENTS Widgets)
 
-include_directories(include gui)
+include_directories(
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/include
+)
 
-# MOC manual de ganttwindow.h
-qt5_wrap_cpp(MOC_SOURCES include/ganttwindow.h)
+# MOC manual de ganttwindow.h (necesita QObject por el timer/slots)
+qt5_wrap_cpp(MOC_SOURCES ${CMAKE_SOURCE_DIR}/include/ganttwindow.h)
 
 add_executable(simulador
+    # Lógica principal
     src/main.cpp
     src/algoritmo.cpp
     src/proceso.cpp
+    src/priorityQueue.cpp
     src/ganttwindow.cpp
+    src/synchronizer.cpp
+
+    # Interfaz gráfica
     gui/gui.cpp
+
     ${MOC_SOURCES}
 )
+
 target_link_libraries(simulador Qt5::Widgets)
 
-# Para la parte de sincronización (Simulación B)
-add_executable(simulador_B
-    src/main_sync.cpp
-    src/synchronizer.cpp
+add_executable(tests
+    test/tests.cpp
+
+    src/algoritmo.cpp
     src/proceso.cpp
+    src/priorityQueue.cpp
 )
-target_include_directories(simulador_B PRIVATE include)
-target_link_libraries(simulador_B PRIVATE Qt5::Core)
+
+target_link_libraries(tests Qt5::Widgets)

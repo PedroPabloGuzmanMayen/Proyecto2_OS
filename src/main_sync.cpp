@@ -1,4 +1,3 @@
-// src/main_sync.cpp
 #include <iostream>
 #include "synchronizer.h"
 
