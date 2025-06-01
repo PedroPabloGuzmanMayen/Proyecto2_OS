@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <queue>
 #include <map>
+#include "priorityQueue.h"
 
 std::vector<Proceso> fifo(const std::vector<Proceso>& procesos) {
     std::vector<Proceso> resultado = procesos;
@@ -187,6 +188,134 @@ std::vector<Proceso> priorityScheduling(const std::vector<Proceso>& procesos) {
     }
 
     return ejecucion;
+}
+// -------------------
+// Shortest remaining time 
+// -------------------
+std::vector<Proceso> shortestRemainingTime(const std::vector<Proceso>& procesosOriginal, std::vector<BloqueGantt>& bloques) {
+    std::vector<Proceso> procesos = procesosOriginal;
+    std::vector<Proceso> resultado;
+    
+    // Ordenar por tiempo de llegada
+    std::sort(procesos.begin(), procesos.end(), [](const Proceso& a, const Proceso& b) {
+        return a.arrivalTime < b.arrivalTime;
+    });
+
+    priorityQueue colaReady;
+    std::map<QString, int> tiempoRestante;
+    std::map<QString, int> primeraEjecucion;
+    std::map<QString, int> ultimaEjecucion;
+    
+    // Inicializarla estructura que guarda los tiempos restatntes 
+    for (const auto& p : procesos) {
+        tiempoRestante[p.pid] = p.burstTime;
+    }
+
+    int tiempo = 0;
+    size_t i = 0;
+    Proceso* procesoActual = nullptr;
+    int tiempoEjecucionActual = 0;
+
+    while (!colaReady.isEmpty() || i < procesos.size() || procesoActual != nullptr) {
+        // Agregar procesos que han llegado a la cola de ready
+        while (i < procesos.size() && procesos[i].arrivalTime <= tiempo) {
+            Proceso nuevo = procesos[i];
+            nuevo.burstTime = tiempoRestante[nuevo.pid]; // Usar tiempo restante como prioridad
+            colaReady.insertNewValue(nuevo);
+            i++;
+        }
+
+        // Si hay un proceso ejecutándose
+        if (procesoActual != nullptr) {
+            // Verificar si hay un proceso con menor tiempo restante que el actual
+            if (!colaReady.isEmpty()) {
+                Proceso siguienteProceso = colaReady.top();
+                
+                // Si el siguiente proceso tiene menos tiempo restante, hacer preemption
+                if (siguienteProceso.burstTime < tiempoRestante[procesoActual->pid]) {
+                    // Guardar el bloque del proceso actual
+                    if (tiempoEjecucionActual > 0) {
+                        bloques.push_back({procesoActual->pid, tiempo - tiempoEjecucionActual, tiempoEjecucionActual});
+                    }
+                    
+                    // Devolver el proceso actual a la cola si no ha terminado
+                    if (tiempoRestante[procesoActual->pid] > 0) {
+                        Proceso procesoPreemptado = *procesoActual;
+                        procesoPreemptado.burstTime = tiempoRestante[procesoActual->pid];
+                        colaReady.insertNewValue(procesoPreemptado);
+                    }
+                    
+                    procesoActual = nullptr;
+                    tiempoEjecucionActual = 0;
+                }
+            }
+        }
+
+        // Si no hay proceso ejecutándose, tomar el siguiente de la cola
+        if (procesoActual == nullptr && !colaReady.isEmpty()) {
+            Proceso siguiente = colaReady.pop();
+            procesoActual = new Proceso(siguiente);
+            
+            // Buscar el proceso original para obtener todos sus datos
+            for (auto& p : procesos) {
+                if (p.pid == siguiente.pid) {
+                    *procesoActual = p;
+                    break;
+                }
+            }
+            
+            // Registrar primera ejecución si es necesario
+            if (primeraEjecucion.find(procesoActual->pid) == primeraEjecucion.end()) {
+                primeraEjecucion[procesoActual->pid] = tiempo;
+            }
+            
+            tiempoEjecucionActual = 0;
+        }
+
+        // Si no hay ningún proceso ready, avanzar el tiempo
+        if (procesoActual == nullptr) {
+            if (i < procesos.size()) {
+                tiempo = procesos[i].arrivalTime;
+            } else {
+                break;
+            }
+            continue;
+        }
+
+        // Ejecutar el proceso actual por 1 unidad de tiempo
+        tiempo++;
+        tiempoEjecucionActual++;
+        tiempoRestante[procesoActual->pid]--;
+
+        // Si el proceso terminó
+        if (tiempoRestante[procesoActual->pid] == 0) {
+            ultimaEjecucion[procesoActual->pid] = tiempo;
+            
+            // Guardar el último bloque
+            bloques.push_back({procesoActual->pid, tiempo - tiempoEjecucionActual, tiempoEjecucionActual});
+            
+            delete procesoActual;
+            procesoActual = nullptr;
+            tiempoEjecucionActual = 0;
+        }
+    }
+
+    // Limpiar memoria si queda algún proceso
+    if (procesoActual != nullptr) {
+        delete procesoActual;
+    }
+
+    // Calcular tiempos finales para cada proceso
+    std::vector<Proceso> final;
+    for (auto p : procesosOriginal) {
+        p.startTime = primeraEjecucion[p.pid];
+        p.completionTime = ultimaEjecucion[p.pid];
+        p.turnaroundTime = p.completionTime - p.arrivalTime;
+        p.waitingTime = p.turnaroundTime - p.burstTime;
+        final.push_back(p);
+    }
+
+    return final;
 }
 
 double calcularTiempoEsperaPromedio(const std::vector<Proceso>& procesosOriginal, const std::vector<Proceso>& ejecucion) {
