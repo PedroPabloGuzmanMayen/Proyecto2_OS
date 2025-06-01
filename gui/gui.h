@@ -2,11 +2,18 @@
 #define SIMULADORGUI_H
 
 #include <QMainWindow>
-#include <QPushButton>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QComboBox>
 #include <QSpinBox>
 #include <QLabel>
-#include <QVBoxLayout>
+#include <QPushButton>
+#include <QLineEdit>
+#include <QGroupBox>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QDir>
+#include <QMessageBox>
 
 #include "ganttwindow.h"
 
@@ -17,6 +24,8 @@ public:
     SimuladorGUI(QWidget *parent = nullptr);
 
 private slots:
+    void onSeleccionarArchivo();
+    void onArchivoDefault();
     void onSimulacionAClicked();
     void onSimulacionBClicked();
 
@@ -29,6 +38,10 @@ private:
 
     GanttWindow *ganttWidget;      // Diagrama de Gantt actual
     QVBoxLayout *layout;           // Layout principal para poder modificarlo dinámicamente
+    QLineEdit *lineEditArchivo;
+    QPushButton *btnSeleccionarArchivo;
+    QPushButton *btnArchivoDefault;
+    QString archivoSeleccionado;
 };
 
 #endif
