@@ -57,7 +57,6 @@ SimuladorGUI::SimuladorGUI(QWidget *parent)
     spinQuantum->setRange(1, 50);
     spinQuantum->setValue(4);
 
-    // Configuración inicial
     labelQuantum->setVisible(false);
     spinQuantum->setVisible(false);
 

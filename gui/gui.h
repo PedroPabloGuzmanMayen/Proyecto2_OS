@@ -2,8 +2,7 @@
 #define SIMULADORGUI_H
 
 #include <QMainWindow>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
+#include <QPushButton>
 #include <QComboBox>
 #include <QSpinBox>
 #include <QLabel>
