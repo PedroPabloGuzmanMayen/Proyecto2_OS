@@ -8,6 +8,7 @@
 #include <QLabel>
 #include <QWidget>
 #include "gui.h"
+#include "estadisticas.h"
 
 class MainMenu : public QMainWindow {
     Q_OBJECT
@@ -25,7 +26,7 @@ private:
     QLabel *lblTitulo;
     
     SimuladorGUI *simuladorWindow;
-    QWidget *estadisticasWindow; 
+    EstadisticasWindow *estadisticasWindow;
 };
 
 #endif 

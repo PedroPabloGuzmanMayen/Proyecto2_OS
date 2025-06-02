@@ -1,4 +1,5 @@
 #include "mainmenu.h"
+#include "estadisticas.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPushButton>
@@ -91,17 +92,17 @@ void MainMenu::onSimuladorVisualClicked()
     simuladorWindow->raise();
     simuladorWindow->activateWindow();
     
-
-    this->hide();
 }
+
 
 void MainMenu::onCalcularEstadisticasClicked()
 {
-    //Funcionalidad pendiente
-    QMessageBox::information(this, "Próximamente", 
-        "La ventana de 'Calcular Estadísticas de Múltiples Algoritmos' está en desarrollo.\n\n"
-        "Esta funcionalidad permitirá:\n"
-        "• Comparar múltiples algoritmos de planificación\n"
-        "• Generar estadísticas detalladas\n"
-        "• Mostrar gráficos comparativos");
+    // Crear y mostrar la ventana de estadísticas
+    if (!estadisticasWindow) {
+        estadisticasWindow = new EstadisticasWindow();
+    }
+    
+    estadisticasWindow->show();
+    estadisticasWindow->raise();
+    estadisticasWindow->activateWindow();
 }
