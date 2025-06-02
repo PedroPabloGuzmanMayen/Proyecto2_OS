@@ -1,7 +1,6 @@
 #ifndef PRIORITYQUEUE_H
 #define PRIORITYQUEUE_H
 
-#include <iostream>
 #include <vector>
 #include <string>
 #include <stdexcept>
@@ -41,4 +40,4 @@ private:
     vector<Proceso> heap;// Vector que representa el heap
 };
 
-#endif
+#endif // PRIORITYQUEUE_H

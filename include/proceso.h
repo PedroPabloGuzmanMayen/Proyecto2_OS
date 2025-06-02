@@ -5,16 +5,14 @@
 #include <vector>
 
 struct Proceso {
-    QString pid;        // Identificador del proceso
-    int burstTime;      // Tiempo de ejecución
-    int arrivalTime;    // Tiempo de llegada
-    int priority;       // Prioridad (si aplica)
-
-    // Campos adicionales para cálculo de tiempos
-    int startTime = -1;         // Tiempo en que inicia por primera vez
-    int completionTime = -1;    // Tiempo en que finaliza
-    int waitingTime = -1;       // Tiempo de espera
-    int turnaroundTime = -1;    // Tiempo de retorno (espera + burstTime)
+    QString pid;
+    int burstTime;
+    int arrivalTime;
+    int priority;
+    int startTime;
+    int completionTime;
+    int waitingTime;
+    int turnaroundTime;
 };
 
 std::vector<Proceso> cargarProcesosDesdeArchivo(const QString &ruta);
