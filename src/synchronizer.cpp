@@ -135,16 +135,18 @@ std::vector<BloqueSync> simulateSync(
     const std::vector<Accion> &acciones,
     std::vector<Recurso> &recursosVec)
 {
-    // Mapa recurso → estado (capacidad + min-heap de endTimes)
     std::unordered_map<QString, ResState> resMap;
     for (const auto &r : recursosVec) {
+        if (r.count <= 0) {
+            qDebug() << "Recurso con capacidad inválida:" << r.name << r.count;
+            continue;
+        }
         resMap[r.name].capacity = r.count;
     }
 
     std::vector<BloqueSync> timeline;
 
     for (const auto &a : acciones) {
-        // Buscar el estado del recurso
         auto it = resMap.find(a.recurso);
         if (it == resMap.end()) {
             qDebug() << "Acción sobre recurso desconocido:" << a.recurso;
@@ -152,43 +154,32 @@ std::vector<BloqueSync> simulateSync(
         }
         auto &rs = it->second;
 
-        // 1) Liberar accesos finalizados en este ciclo
-        while (!rs.endTimes.empty() && rs.endTimes.top() <= a.cycle) {
+        // 1) Liberar accesos terminados ANTES del ciclo actual
+        while (!rs.endTimes.empty() && rs.endTimes.top() < a.cycle) {
             rs.endTimes.pop();
         }
 
         int used = rs.endTimes.size();
         int startAccess = a.cycle;
 
-        // 2) Si excede capacidad, genera WAIT y ajusta startAccess al nextFree
-        if (rs.capacity > 0 && used >= rs.capacity) {
+        // 2) Verificar si necesita esperar
+        if (used >= rs.capacity) {
             int nextFree = rs.endTimes.empty() ? a.cycle : rs.endTimes.top();
             if (nextFree > a.cycle) {
-                // Bloque WAIT (duración = nextFree - a.cycle)
+                // Generar WAIT
                 timeline.push_back({
-                    a.pid,
-                    a.recurso,
-                    a.cycle,
-                    nextFree - a.cycle,
-                    false
+                    a.pid, a.recurso, a.cycle, nextFree - a.cycle, false
                 });
                 startAccess = nextFree;
-            }
-            // Consumir una instancia disponible (pop de endTimes) si no está vacío
-            if (!rs.endTimes.empty()) {
+                // Liberar la instancia que se vuelve disponible
                 rs.endTimes.pop();
             }
         }
 
-        // 3) Bloque ACCESS (duration = 1 ciclo) en startAccess
+        // 3) Generar ACCESS
         timeline.push_back({
-            a.pid,
-            a.recurso,
-            startAccess,
-            1,
-            true
+            a.pid, a.recurso, startAccess, 1, true
         });
-        // Programar fin de acceso en startAccess + 1
         rs.endTimes.push(startAccess + 1);
     }
 
