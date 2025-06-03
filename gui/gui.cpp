@@ -284,33 +284,32 @@ void SimuladorGUI::onSimulacionAClicked() {
     // 3) Determinar algoritmo y ejecutar
     QString algoritmo = comboAlgoritmo->currentText();
     int quantum = spinQuantum->value();
+    //Agregar el componente de Gannt
+    if (ganttWidget) {
+        layout->removeWidget(ganttWidget);
+        delete ganttWidget;
+        ganttWidget = nullptr;
+    }
+    ganttWidget = new GanttWindow(this);
+    layout->addWidget(ganttWidget);
 
     std::vector<Proceso> ejecutados;
     std::vector<BloqueGantt> bloques;
 
     if (algoritmo.contains("FIFO", Qt::CaseInsensitive)) {
-        ejecutados = fifo(procesos);
-        for (const auto& p : ejecutados) {
-            bloques.push_back({ p.pid, p.startTime, p.burstTime });
-        }
+        ejecutados = fifo(procesos, ganttWidget);
     }
     else if (algoritmo.contains("Shortest Job First", Qt::CaseInsensitive)) {
-        ejecutados = shortestJobFirst(procesos);
-        for (const auto& p : ejecutados) {
-            bloques.push_back({ p.pid, p.startTime, p.burstTime });
-        }
+        ejecutados = shortestJobFirst(procesos, ganttWidget);
     }
     else if (algoritmo.contains("Priority Scheduling", Qt::CaseInsensitive)) {
-        ejecutados = priorityScheduling(procesos);
-        for (const auto& p : ejecutados) {
-            bloques.push_back({ p.pid, p.startTime, p.burstTime });
-        }
+        ejecutados = priorityScheduling(procesos, ganttWidget);
     }
     else if (algoritmo.contains("Shortest Remaining Time", Qt::CaseInsensitive)) {
-        ejecutados = shortestRemainingTime(procesos, bloques);
+        ejecutados = shortestRemainingTime(procesos, bloques, ganttWidget);
     }
     else if (algoritmo.contains("Round Robin", Qt::CaseInsensitive)) {
-        ejecutados = roundRobin(procesos, quantum, bloques);
+        ejecutados = roundRobin(procesos, quantum, bloques, ganttWidget);
     }
     else {
         QMessageBox::information(this, "Info", "Ese algoritmo aún no está implementado.");
@@ -325,14 +324,6 @@ void SimuladorGUI::onSimulacionAClicked() {
     double promedio = calcularTiempoEsperaPromedio(procesos, ejecutados);
     resultado += "\nTiempo de espera promedio: " + QString::number(promedio, 'f', 2);
 
-    // 5) Mostrar Gantt embebido (remplaza el anterior si existe)
-    if (ganttWidget) {
-        layout->removeWidget(ganttWidget);
-        delete ganttWidget;
-        ganttWidget = nullptr;
-    }
-    ganttWidget = new GanttWindow(bloques, this);
-    layout->addWidget(ganttWidget);
 
     // 6) Mostrar cuadro de texto con métricas
     QMessageBox::information(this, "Resultado Simulación A", resultado);
