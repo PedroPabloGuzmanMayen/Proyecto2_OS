@@ -6,6 +6,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QScrollArea>
+#include <QLabel>
 
 GanttWindow::GanttWindow(QWidget *parent)
     : QWidget(parent)
@@ -15,7 +16,14 @@ GanttWindow::GanttWindow(QWidget *parent)
     mainLayout->setContentsMargins(8, 8, 8, 8);
     mainLayout->setSpacing(10);
 
-    // 2) Título centrado
+
+    // 2) Crear y añadir la etiqueta de “Ciclo: X”
+    labelCiclo = new QLabel("Ciclo: 0", this);          // etiqueta inicial
+    labelCiclo->setAlignment(Qt::AlignCenter);
+    labelCiclo->setStyleSheet("font-weight: bold; font-size: 14px; margin: 4px;");
+    mainLayout->addWidget(labelCiclo);      
+
+    // 3) Título centrado
     QLabel *titulo = new QLabel("Diagrama de Gantt", this);
     titulo->setAlignment(Qt::AlignCenter);
     titulo->setStyleSheet("font-weight: bold; font-size: 18px; color: #333;");
@@ -49,6 +57,13 @@ GanttWindow::~GanttWindow() {
 
 }
 
+// Implementación de actualizarNumeroCiclo
+void GanttWindow::actualizarNumeroCiclo(int ciclo) {   // implementamos el método
+    if (labelCiclo) {
+        labelCiclo->setText(QString("Ciclo: %1").arg(ciclo));
+    }
+}
+
 // Devuelve el color asociado a un PID, asignándolo si aún no existía
 QColor GanttWindow::colorParaPID(const QString &pid) {
     if (colores.contains(pid)) {
@@ -60,6 +75,9 @@ QColor GanttWindow::colorParaPID(const QString &pid) {
 }
 
 void GanttWindow::agregarBloqueEnTiempoReal(const QString &pid, int ciclo) {
+
+    actualizarNumeroCiclo(ciclo);                     // actualiza “Ciclo: X”
+    
     QColor colorProceso = colorParaPID(pid);
 
     QLabel *bloqueUnitario = new QLabel(QString("%1\n%2").arg(pid).arg(ciclo), contenedorBloques);
