@@ -24,9 +24,12 @@ add_executable(simulador
     src/priorityQueue.cpp
     src/ganttwindow.cpp
     src/synchronizer.cpp
+    
 
     # Interfaz gráfica
     gui/gui.cpp
+    gui/mainmenu.cpp
+    gui/estadisticas.cpp
 
     ${MOC_SOURCES}
 )
