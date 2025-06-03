@@ -35,7 +35,7 @@ std::vector<Proceso> fifo(const std::vector<Proceso>& procesos, GanttWindow* gan
             }
         }
         p.completionTime = tiempo + p.burstTime;
-        p.waitingTime = p.startTime - p.arrivalTime;
+        p.waitingTime = p.startTime;
         p.turnaroundTime = p.completionTime - p.arrivalTime;
         tiempo = p.completionTime;
     }
@@ -135,7 +135,7 @@ std::vector<Proceso> shortestJobFirst(const std::vector<Proceso>& procesos, Gant
             }
         }
         p.completionTime = tiempo + p.burstTime;
-        p.waitingTime = p.completionTime - p.startTime;
+        p.waitingTime = p.startTime;
         p.turnaroundTime = p.completionTime - p.arrivalTime;
         tiempo = p.completionTime;
     }
@@ -169,7 +169,7 @@ std::vector<Proceso> priorityScheduling(const std::vector<Proceso>& procesos, Ga
 
         // 5) Actualizamos métricas
         p.completionTime = tiempo + p.burstTime;
-        p.waitingTime    = p.startTime - p.arrivalTime;               // Tiempo de espera = cuándo empezó – cuándo llegó
+        p.waitingTime    = p.startTime;               // Tiempo de espera = cuándo empezó – cuándo llegó
         p.turnaroundTime = p.completionTime - p.arrivalTime;          // Turnaround = cuando terminó – cuándo llegó
 
         // Avanzamos el reloj a fin de este proceso
@@ -302,7 +302,7 @@ std::vector<Proceso> shortestRemainingTime(
         p.startTime = primeraEjecucion[p.pid];
         p.completionTime = ultimaEjecucion[p.pid];
         p.turnaroundTime = p.completionTime - p.arrivalTime;
-        p.waitingTime = p.turnaroundTime - p.burstTime;
+        p.waitingTime = p.completionTime - p.burstTime - p.arrivalTime;
         final.push_back(p);
     }
 
