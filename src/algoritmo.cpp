@@ -143,50 +143,39 @@ std::vector<Proceso> shortestJobFirst(const std::vector<Proceso>& procesos, Gant
 }
 
 // ---------------------
-// Priority Scheduling
+// Priority Scheduling 
 // ---------------------
 std::vector<Proceso> priorityScheduling(const std::vector<Proceso>& procesos, GanttWindow* gantt) {
-    auto pendientes = procesos;
-    std::vector<Proceso> ejecucion;
+    std::vector<Proceso> ejecucion = procesos;
     int tiempo = 0;
 
-    std::sort(pendientes.begin(), pendientes.end(), [](auto& a, auto& b) {
-        return a.arrivalTime < b.arrivalTime;
+    // 2) Orden inicial por priority (menor número = prioridad más alta)
+    std::sort(ejecucion.begin(), ejecucion.end(), [](const Proceso& a, const Proceso& b) {
+        return a.priority < b.priority;
     });
 
-    while (!pendientes.empty()) {
-        std::vector<Proceso*> ready;
-        for (auto& p : pendientes)
-            if (p.arrivalTime <= tiempo)
-                ready.push_back(&p);
+    // 3) Recorremos en ese orden, usando prioridad en lugar de burstTime
+    for (auto& p : ejecucion) {
+        // Asignamos startTime en el instante actual “tiempo”
+        p.startTime = tiempo;
 
-        if (ready.empty()) {
-            tiempo = pendientes.front().arrivalTime;
-            continue;
-        }
-        // Elegir el de mayor prioridad (número menor = más alta prioridad)
-        auto cmpPriority = [](Proceso* a, Proceso* b) {
-            return a->priority < b->priority;
-        };
-        auto elegido = *std::min_element(ready.begin(), ready.end(), cmpPriority);
-
-        elegido->startTime = tiempo;
-        for (int ciclo = 0; ciclo < elegido->burstTime; ciclo++) {
+        // 4) Dibujamos en el Gantt cada ciclo de este proceso
+        for (int ciclo = 0; ciclo < p.burstTime; ++ciclo) {
             if (gantt) {
-                gantt->agregarBloqueEnTiempoReal(elegido->pid, tiempo + ciclo);
-                delay(300);
+                gantt->agregarBloqueEnTiempoReal(p.pid, tiempo + ciclo);
+                delay(300);  // mantén el mismo delay que en SJF/RR
             }
-        elegido->completionTime = tiempo + elegido->burstTime;
-        elegido->turnaroundTime = elegido->completionTime - elegido->arrivalTime;
-        elegido->waitingTime = elegido->startTime - elegido->arrivalTime;
-        tiempo = elegido->completionTime;
-
-        ejecucion.push_back(*elegido);
-        pendientes.erase(std::remove_if(pendientes.begin(), pendientes.end(),
-                          [&](const Proceso& p){ return p.pid == elegido->pid; }),
-                          pendientes.end());
         }
+
+        // 5) Actualizamos métricas
+        p.completionTime = tiempo + p.burstTime;
+        p.waitingTime    = p.startTime - p.arrivalTime;               // Tiempo de espera = cuándo empezó – cuándo llegó
+        p.turnaroundTime = p.completionTime - p.arrivalTime;          // Turnaround = cuando terminó – cuándo llegó
+
+        // Avanzamos el reloj a fin de este proceso
+        tiempo = p.completionTime;
     }
+
     return ejecucion;
 }
 
