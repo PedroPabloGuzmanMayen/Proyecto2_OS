@@ -166,20 +166,30 @@ std::vector<BloqueSync> simulateSync(
         if (used >= rs.capacity) {
             int nextFree = rs.endTimes.empty() ? a.cycle : rs.endTimes.top();
             if (nextFree > a.cycle) {
-                // Generar WAIT
+                // GENERAR WAIT:
                 timeline.push_back({
-                    a.pid, a.recurso, a.cycle, nextFree - a.cycle, false
+                    a.pid,        // PID del proceso
+                    a.recurso,    // Nombre del recurso
+                    a.cycle,      // Inicio de la espera (ciclo original)
+                    nextFree - a.cycle, // Duración de la espera
+                    false         // false = WAIT
                 });
+                // Actualizamos startAccess para que el ACCESS ocurra en nextFree
                 startAccess = nextFree;
-                // Liberar la instancia que se vuelve disponible
+                // Liberamos la plaza que se va a usar
                 rs.endTimes.pop();
             }
         }
 
-        // 3) Generar ACCESS
+        // Una vez pase la espera (o si no hubo que esperar), generamos el bloque ACCESS
         timeline.push_back({
-            a.pid, a.recurso, startAccess, 1, true
+            a.pid,        // PID
+            a.recurso,    // Recurso
+            startAccess,  // Ciclo de inicio del acceso efectivo
+            1,            // Duración = 1 ciclo para el ACCESS
+            true          // true = ACCESS
         });
+        // Registramos que esa plaza se liberará en (startAccess + 1)
         rs.endTimes.push(startAccess + 1);
     }
 
