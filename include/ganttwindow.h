@@ -11,18 +11,18 @@
 #include <QString>
 #include <QColor>
 #include <vector>
-#include "algoritmo.h"  // Para que BloqueGantt esté disponible
+#include "tipos.h" // Para que BloqueGantt esté disponible
 
 class GanttWindow : public QWidget {
     Q_OBJECT
 
 public:
-    explicit GanttWindow(const std::vector<BloqueGantt>& bloques, QWidget *parent = nullptr);
+    explicit GanttWindow(QWidget *parent = nullptr);
     ~GanttWindow();
 
-private slots:
-    // Se dispara cada “tick” (por ejemplo, 200 ms) y dibuja EXACTAMENTE un bloque unitario
-    void mostrarSiguienteBloqueUnitario();
+    void agregarBloqueEnTiempoReal(const QString &pid, int ciclo);
+
+    void limpiarDiagrama();
 
 private:
     // Vector original de bloques lógicos (cada uno con pid, inicio y duracion)
@@ -49,12 +49,6 @@ private:
     // Tamaño base (en píxeles) de cada unidad de tiempo: ancho × alto
     static constexpr int ANCHO_BASE_UNIDAD = 20;
     static constexpr int ALTO_UNIDAD       = 40;
-
-    // Crea un QLabel para un único bloque unitario, con:
-    //  - el número de ciclo como texto
-    //  - color de fondo correspondiente al PID
-    //  - ancho ligeramente ajustado según el número de ciclo
-    void agregarBloqueUnitario(const QString &pid, int ciclo);
 
     // Retorna (o asigna si no existía) un color único para el PID dado.
     QColor colorParaPID(const QString &pid);
