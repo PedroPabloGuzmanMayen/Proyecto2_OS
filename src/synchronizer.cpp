@@ -1,5 +1,3 @@
-// src/synchronizer.cpp
-
 #include "synchronizer.h"
 #include "proceso.h"
 #include <QFile>
@@ -194,4 +192,12 @@ std::vector<BloqueSync> simulateSync(
     }
 
     return timeline;
+}
+
+std::vector<BloqueSync> simulateSyncSemaforo(
+    const std::vector<Accion> &acciones,
+    std::vector<Recurso> &recursosVec)
+{
+    
+    return simulateSync(acciones, recursosVec);
 }

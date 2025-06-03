@@ -4,6 +4,7 @@
 #include "proceso.h"
 #include <QString>
 #include <vector>
+#include "tipos.h" // Para usar BloqueSync
 
 /** Tipo de acción: lectura o escritura */
 enum class ActionType { READ, WRITE };
@@ -61,5 +62,8 @@ std::vector<BloqueSync> simulateSync(
     const std::vector<Accion> &acciones,
     std::vector<Recurso> &recursos
 );
+
+std::vector<BloqueSync> simulateSyncSemaforo(const std::vector<Accion> &acciones,
+                                              std::vector<Recurso> &recursos);
 
 #endif // SYNCHRONIZER_H

@@ -14,6 +14,10 @@
 #include <vector>
 #include "tipos.h" // Para que BloqueGantt esté disponible
 
+// Ajuste de tamaño: 40×40 píxeles por cada ciclo (ancho × alto)
+static const int ANCHO_BASE_UNIDAD = 40;  // ancho en px por cada ciclo
+static const int ALTO_UNIDAD       = 40;  // alto en px para cada bloque
+
 class GanttWindow : public QWidget {
     Q_OBJECT
 
@@ -27,11 +31,14 @@ public:
 
     void limpiarDiagrama();
 
+    /// Pinta un bloque de sincronización (ACCESS vs WAIT) en el diagrama de Gantt.
+    void agregarBloqueSync(const QString &pid, int ciclo, bool accessed);
+
 private:
     // Etiqueta que mostrará “Ciclo: X”
-    QLabel *labelCiclo;            
+    QLabel *labelCiclo;
 
-    // Vector original de bloques lógicos (cada uno con pid, inicio y duracion)
+    // Vector original de bloques lógicos (cada uno con pid, inicio y duración)
     std::vector<BloqueGantt> bloques;
     // Índice del BloqueGantt actual que se está procesando
     int indiceBloque;
@@ -49,12 +56,8 @@ private:
     // ScrollArea que envuelve a contenedorBloques y permite el scroll horizontal
     QScrollArea *scrollArea;
 
-    // Temporizador que dispara cada “tick” para animar el diagrama
+    // Temporizador que dispara cada “tick” para animar el diagrama (opcional en esta versión)
     QTimer *timer;
-
-    // Tamaño base (en píxeles) de cada unidad de tiempo: ancho × alto
-    static constexpr int ANCHO_BASE_UNIDAD = 20;
-    static constexpr int ALTO_UNIDAD       = 40;
 
     // Retorna (o asigna si no existía) un color único para el PID dado.
     QColor colorParaPID(const QString &pid);

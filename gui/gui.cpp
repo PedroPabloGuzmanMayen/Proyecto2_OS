@@ -5,6 +5,9 @@
 #include <QDir>
 #include "algoritmo.h"
 #include "synchronizer.h"
+#include "ganttwindow.h"     // Necesario para usar GanttWindow
+#include <QThread>           // Para QThread::msleep
+#include <QApplication>      // Para processEvents()
 
 // Constructor principal
 SimuladorGUI::SimuladorGUI(QWidget *parent)
@@ -95,7 +98,7 @@ SimuladorGUI::SimuladorGUI(QWidget *parent)
     grupoSync = new QGroupBox("Archivos Simulación B (Mutex/Semáforo)", this);
     QVBoxLayout *vSync = new QVBoxLayout(grupoSync);
 
-    // Linea: Procesos
+    // Línea: Procesos
     {
         QHBoxLayout *h1 = new QHBoxLayout();
         lineEditProcesosSync = new QLineEdit(procesosSyncRuta, this);
@@ -112,7 +115,7 @@ SimuladorGUI::SimuladorGUI(QWidget *parent)
 
         vSync->addLayout(h1);
     }
-    // Linea: Recursos
+    // Línea: Recursos
     {
         QHBoxLayout *h2 = new QHBoxLayout();
         lineEditRecursosSync = new QLineEdit(recursosSyncRuta, this);
@@ -129,7 +132,7 @@ SimuladorGUI::SimuladorGUI(QWidget *parent)
 
         vSync->addLayout(h2);
     }
-    // Linea: Acciones
+    // Línea: Acciones
     {
         QHBoxLayout *h3 = new QHBoxLayout();
         lineEditAccionesSync = new QLineEdit(accionesSyncRuta, this);
@@ -147,11 +150,47 @@ SimuladorGUI::SimuladorGUI(QWidget *parent)
         vSync->addLayout(h3);
     }
 
-    layout->addWidget(grupoSync);
+    // ----- NUEVO: Grupo de Modo de Sincronización -----
+    grupoModoSync = new QGroupBox("Modo de sincronización", this);
+    QHBoxLayout *modoLayout = new QHBoxLayout(grupoModoSync);
 
-    // *** Texto de ayuda o espacio para resultados ***
-    // (Podrías agregar aquí un QTextEdit si quieres ver la salida de Simulación B dentro de la GUI.
-    //  Por simplicidad, notificaremos resultados con QMessageBox.)
+    rbMutex    = new QRadioButton("Mutex Locks", grupoModoSync);
+    rbSemaforo = new QRadioButton("Semáforo", grupoModoSync);
+    rbMutex->setChecked(true); // Por defecto seleccionamos Mutex
+
+    buttonGroupModo = new QButtonGroup(grupoModoSync);
+    buttonGroupModo->addButton(rbMutex);
+    buttonGroupModo->addButton(rbSemaforo);
+
+    modoLayout->addWidget(rbMutex);
+    modoLayout->addWidget(rbSemaforo);
+    modoLayout->addStretch(); // Empujar a la izquierda
+
+    vSync->addWidget(grupoModoSync);
+    // --------------------------------------------------
+
+    // Botones para ver procesos, recursos y acciones
+    QHBoxLayout *hVer = new QHBoxLayout();
+    btnVerProcesosSync  = new QPushButton("Ver Procesos",   grupoSync);
+    btnVerRecursosSync  = new QPushButton("Ver Recursos",   grupoSync);
+    btnVerAccionesSync  = new QPushButton("Ver Acciones",   grupoSync);
+    btnResetSimBS       = new QPushButton("Limpiar Simulación B", grupoSync);
+
+    hVer->addWidget(btnVerProcesosSync);
+    hVer->addWidget(btnVerRecursosSync);
+    hVer->addWidget(btnVerAccionesSync);
+    hVer->addStretch();
+    hVer->addWidget(btnResetSimBS);
+
+    vSync->addLayout(hVer);
+
+    // Conectar las señales de esos botones a sus slots:
+    connect(btnVerProcesosSync,   &QPushButton::clicked, this, &SimuladorGUI::onVerProcesosSyncClicked);
+    connect(btnVerRecursosSync,   &QPushButton::clicked, this, &SimuladorGUI::onVerRecursosSyncClicked);
+    connect(btnVerAccionesSync,   &QPushButton::clicked, this, &SimuladorGUI::onVerAccionesSyncClicked);
+    connect(btnResetSimBS,        &QPushButton::clicked, this, &SimuladorGUI::onResetSimBSClicked);
+
+    layout->addWidget(grupoSync);
 
     setCentralWidget(central);
     setWindowTitle("Simulador de Sistemas Operativos");
@@ -259,6 +298,92 @@ void SimuladorGUI::onArchivoDefaultSync() {
 }
 
 // ---------------------
+// Slots: Mostrar contenido cargado (Simulación B)
+// ---------------------
+void SimuladorGUI::onVerProcesosSyncClicked() {
+    auto procesos = loadProcesos(procesosSyncRuta);
+    if (procesos.empty()) {
+        QMessageBox::information(this, "Procesos Sync", "No hay procesos cargados.");
+        return;
+    }
+    QString texto;
+    for (const auto &p : procesos) {
+        texto += QString("%1, BT=%2, AT=%3, Prio=%4\n")
+                     .arg(p.pid)
+                     .arg(p.burstTime)
+                     .arg(p.arrivalTime)
+                     .arg(p.priority);
+    }
+    QMessageBox msg(this);
+    msg.setWindowTitle("Lista de Procesos (Sync)");
+    msg.setText(texto);
+    msg.exec();
+}
+
+void SimuladorGUI::onVerRecursosSyncClicked() {
+    auto recursos = loadRecursos(recursosSyncRuta);
+    if (recursos.empty()) {
+        QMessageBox::information(this, "Recursos Sync", "No hay recursos cargados.");
+        return;
+    }
+    QString texto;
+    for (const auto &r : recursos) {
+        texto += QString("%1, Contador=%2\n")
+                     .arg(r.name)
+                     .arg(r.count);
+    }
+    QMessageBox msg(this);
+    msg.setWindowTitle("Lista de Recursos (Sync)");
+    msg.setText(texto);
+    msg.exec();
+}
+
+void SimuladorGUI::onVerAccionesSyncClicked() {
+    auto acciones = loadAcciones(accionesSyncRuta);
+    if (acciones.empty()) {
+        QMessageBox::information(this, "Acciones Sync", "No hay acciones cargadas.");
+        return;
+    }
+    QString texto;
+    for (const auto &a : acciones) {
+        QString tipoStr = (a.type == ActionType::READ) ? "READ" : "WRITE";
+        texto += QString("%1 | %2 | %3 | Ciclo: %4\n")
+                     .arg(a.pid)
+                     .arg(tipoStr)
+                     .arg(a.recurso)
+                     .arg(a.cycle);
+    }
+    QMessageBox msg(this);
+    msg.setWindowTitle("Lista de Acciones (Sync)");
+    msg.setText(texto);
+    msg.exec();
+}
+
+void SimuladorGUI::onResetSimBSClicked() {
+    // 1) Borrar el Gantt actual (si existe)
+    if (ganttWidget) {
+        layout->removeWidget(ganttWidget);
+        delete ganttWidget;
+        ganttWidget = nullptr;
+    }
+
+    // 2) Limpiar las rutas de los QLineEdit
+    procesosSyncRuta.clear();
+    recursosSyncRuta.clear();
+    accionesSyncRuta.clear();
+    lineEditProcesosSync->clear();
+    lineEditRecursosSync->clear();
+    lineEditAccionesSync->clear();
+
+    // 3) Volver a “Mutex” por defecto
+    rbMutex->setChecked(true);
+    rbSemaforo->setChecked(false);
+
+    QMessageBox::information(this, "Reset Simulación B",
+        "Simulación B ha sido reiniciada. Cargue nuevos archivos o use Default.");
+}
+
+// ---------------------
 // Slot: Simulación A (Calendarización)
 // ---------------------
 void SimuladorGUI::onSimulacionAClicked() {
@@ -284,7 +409,7 @@ void SimuladorGUI::onSimulacionAClicked() {
     // 3) Determinar algoritmo y ejecutar
     QString algoritmo = comboAlgoritmo->currentText();
     int quantum = spinQuantum->value();
-    //Agregar el componente de Gannt
+    // Agregar el componente de Gantt
     if (ganttWidget) {
         layout->removeWidget(ganttWidget);
         delete ganttWidget;
@@ -324,7 +449,6 @@ void SimuladorGUI::onSimulacionAClicked() {
     double promedio = calcularTiempoEsperaPromedio(procesos, ejecutados);
     resultado += "\nTiempo de espera promedio: " + QString::number(promedio, 'f', 2);
 
-
     // 6) Mostrar cuadro de texto con métricas
     QMessageBox::information(this, "Resultado Simulación A", resultado);
 }
@@ -333,18 +457,16 @@ void SimuladorGUI::onSimulacionAClicked() {
 // Slot: Simulación B (Mutex/Semáforo)
 // ---------------------
 void SimuladorGUI::onSimulacionBClicked() {
-    // 1) Validar archivos de Simulación B
+    // 1) Validar que los archivos existan
     QFileInfo infoP(procesosSyncRuta), infoR(recursosSyncRuta), infoA(accionesSyncRuta);
     if (!infoP.exists() || !infoR.exists() || !infoA.exists()) {
         QMessageBox::warning(this, "Error",
-            "Alguno de los archivos de Simulación B no existe. Por favor verifique:\n" +
-            procesosSyncRuta + "\n" +
-            recursosSyncRuta + "\n" +
-            accionesSyncRuta);
+            "Alguno de los archivos de Simulación B no existe. Por favor verifique:\n"
+            + procesosSyncRuta + "\n" + recursosSyncRuta + "\n" + accionesSyncRuta);
         return;
     }
 
-    // 2) Cargar datos
+    // 2) Cargar los datos
     auto procSync = loadProcesos(procesosSyncRuta);
     auto recsSync = loadRecursos(recursosSyncRuta);
     auto actsSync = loadAcciones(accionesSyncRuta);
@@ -362,34 +484,62 @@ void SimuladorGUI::onSimulacionBClicked() {
         return;
     }
 
-    // 3) Ejecutar simulación B
-    std::vector<BloqueSync> timeline = simulateSync(actsSync, recsSync);
-
-    // 4) Mostrar resultado de Simulación B
-    // Construimos un string con todos los bloques: PID, recurso, ciclo y ACCESS/WAIT
-    QString resultado;
-    for (auto &b : timeline) {
-        // Creamos el texto coloreado según b.accessed
-        QString estado = b.accessed
-            ? "<span style='color:green;'>ACCESS</span>"
-            : "<span style='color:red;'>WAIT</span>";
-
-        // Usamos <br> para salto de línea en texto enriquecido
-        resultado += QString("%1 | %2 | Ciclo: %3 | %4<br>")
-                        .arg(b.pid)
-                        .arg(b.recurso)
-                        .arg(b.start)
-                        .arg(estado);
+    // 3) Revisar el modo seleccionado (Mutex vs Semáforo)
+    bool usarSemaforo = rbSemaforo->isChecked();
+    std::vector<BloqueSync> timeline;
+    if (!usarSemaforo) {
+        // Modo Mutex (contador implícito = 1 por recurso)
+        timeline = simulateSync(actsSync, recsSync);
+    } else {
+        // Modo Semáforo (contador > 1 en recursos)
+        // Supón que tienes otra función simulateSyncSemaforo(...) que maneje semáforos.
+        timeline = simulateSyncSemaforo(actsSync, recsSync);
     }
 
-    if (resultado.isEmpty()) {
-        resultado = "No se generó ningún bloque para Simulación B.";
+    // 4) CREAR (o reemplazar) el GanttWindow para mostrar los bloques coloreados
+    if (ganttWidget) {
+        layout->removeWidget(ganttWidget);
+        delete ganttWidget;
+        ganttWidget = nullptr;
+    }
+    ganttWidget = new GanttWindow(this);
+    layout->addWidget(ganttWidget);
+
+    // 5) Pintar cada bloque en el GanttWindow (verde para ACCESS, rojo para WAIT)
+    for (const BloqueSync &b : timeline) {
+        int inicio   = b.start;
+        int duracion = b.duration;
+        for (int offset = 0; offset < duracion; ++offset) {
+            int cicloActual = inicio + offset;
+            static_cast<GanttWindow*>(ganttWidget)
+                ->agregarBloqueSync(b.pid, cicloActual, b.accessed);
+            QThread::msleep(200);           // breve retardo para la animación
+            QApplication::processEvents();  // refresco de la GUI
+        }
     }
 
+    // 6) Construir el HTML para el cuadro de diálogo (opcional)
+    QString resultadoHtml;
+    resultadoHtml.reserve(timeline.size() * 50);
+    for (const auto &b : timeline) {
+        QString estadoColor = b.accessed
+            ? "<span style='color:green; font-weight:bold;'>ACCESS</span>"
+            : "<span style='color:red; font-weight:bold;'>WAIT</span>";
+        resultadoHtml += QString("%1 | %2 | Ciclo: %3 | %4<br>")
+                             .arg(b.pid)
+                             .arg(b.recurso)
+                             .arg(b.start)
+                             .arg(estadoColor);
+    }
+    if (resultadoHtml.isEmpty()) {
+        resultadoHtml = "No se generó ningún bloque para Simulación B.";
+    }
+
+    // 7) Mostrar un QMessageBox con ese HTML (opcional)
     QMessageBox msg(this);
     msg.setWindowTitle("Resultado Simulación B");
-    // Indicamos que vamos a usar texto con formato HTML
     msg.setTextFormat(Qt::RichText);
-    msg.setText(resultado);
+    msg.setText(resultadoHtml);
+    msg.setStandardButtons(QMessageBox::Ok);
     msg.exec();
 }
