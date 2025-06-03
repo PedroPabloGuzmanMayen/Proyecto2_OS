@@ -10,6 +10,7 @@
 #include <QMap>
 #include <QString>
 #include <QColor>
+#include <QLabel>
 #include <vector>
 #include "tipos.h" // Para que BloqueGantt esté disponible
 
@@ -20,11 +21,16 @@ public:
     explicit GanttWindow(QWidget *parent = nullptr);
     ~GanttWindow();
 
+    void actualizarNumeroCiclo(int ciclo);
+
     void agregarBloqueEnTiempoReal(const QString &pid, int ciclo);
 
     void limpiarDiagrama();
 
 private:
+    // Etiqueta que mostrará “Ciclo: X”
+    QLabel *labelCiclo;            
+
     // Vector original de bloques lógicos (cada uno con pid, inicio y duracion)
     std::vector<BloqueGantt> bloques;
     // Índice del BloqueGantt actual que se está procesando
