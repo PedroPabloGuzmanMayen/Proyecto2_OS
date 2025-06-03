@@ -42,6 +42,9 @@ add_executable(tests
     src/algoritmo.cpp
     src/proceso.cpp
     src/priorityQueue.cpp
+    src/ganttwindow.cpp
+
+    ${MOC_SOURCES}
 )
 
 target_link_libraries(tests Qt5::Widgets)
