@@ -378,14 +378,27 @@ void SimuladorGUI::onSimulacionBClicked() {
     // Construimos un string con todos los bloques: PID, recurso, ciclo y ACCESS/WAIT
     QString resultado;
     for (auto &b : timeline) {
-        resultado += QString("%1 | %2 | Ciclo: %3 | %4\n")
-                         .arg(b.pid)
-                         .arg(b.recurso)
-                         .arg(b.start)
-                         .arg(b.accessed ? "ACCESS" : "WAIT");
+        // Creamos el texto coloreado según b.accessed
+        QString estado = b.accessed
+            ? "<span style='color:green;'>ACCESS</span>"
+            : "<span style='color:red;'>WAIT</span>";
+
+        // Usamos <br> para salto de línea en texto enriquecido
+        resultado += QString("%1 | %2 | Ciclo: %3 | %4<br>")
+                        .arg(b.pid)
+                        .arg(b.recurso)
+                        .arg(b.start)
+                        .arg(estado);
     }
+
     if (resultado.isEmpty()) {
         resultado = "No se generó ningún bloque para Simulación B.";
     }
-    QMessageBox::information(this, "Resultado Simulación B", resultado);
+
+    QMessageBox msg(this);
+    msg.setWindowTitle("Resultado Simulación B");
+    // Indicamos que vamos a usar texto con formato HTML
+    msg.setTextFormat(Qt::RichText);
+    msg.setText(resultado);
+    msg.exec();
 }
