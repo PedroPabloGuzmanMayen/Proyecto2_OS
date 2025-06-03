@@ -1,4 +1,6 @@
 #include "priorityQueue.h"
+#include <iostream>
+using namespace std;
 
 // Constructor
 priorityQueue::priorityQueue() {}
