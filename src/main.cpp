@@ -1,9 +1,13 @@
 #include <QApplication>
-#include "gui/gui.h"
+#include "gui/mainmenu.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     QApplication app(argc, argv);
-    SimuladorGUI ventana;
-    ventana.show();
+    
+    // Crear y mostrar el menú principal en lugar de SimuladorGUI directamente
+    MainMenu menu;
+    menu.show();
+    
     return app.exec();
 }
