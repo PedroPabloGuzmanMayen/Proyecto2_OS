@@ -118,47 +118,26 @@ GanttWindow* gantt) {
 // Shortest Job First
 // ---------------------
 std::vector<Proceso> shortestJobFirst(const std::vector<Proceso>& procesos, GanttWindow* gantt) {
-    auto pendientes = procesos;
-    std::vector<Proceso> ejecucion;
+    std::vector<Proceso> ejecucion = procesos;
     int tiempo = 0;
 
-    // Orden inicial por arrivalTime
-    std::sort(pendientes.begin(), pendientes.end(), [](auto& a, auto& b) {
-        return a.arrivalTime < b.arrivalTime;
+    // Orden inicial por bursTime (necesitamos que el que tiene el tiempo más corto se ejecute primro y no tomamos en cuenta AT)
+    std::sort(ejecucion.begin(), ejecucion.end(), [](auto& a, auto& b) {
+        return a.burstTime < b.burstTime;
     });
-
-    while (!pendientes.empty()) {
-        std::vector<Proceso*> ready;
-        for (auto& p : pendientes)
-            if (p.arrivalTime <= tiempo)
-                ready.push_back(&p);
-
-        if (ready.empty()) {
-            tiempo = pendientes.front().arrivalTime;
-            continue;
-        }
-        // Elegir el de menor burstTime
-        auto cmpBurst = [](Proceso* a, Proceso* b) {
-            return a->burstTime < b->burstTime;
-        };
-        auto elegido = *std::min_element(ready.begin(), ready.end(), cmpBurst);
-
-        elegido->startTime = tiempo;
-        for (int ciclo = 0; ciclo < elegido->burstTime; ciclo++) {
+    for (auto& p : ejecucion) {
+        p.startTime = tiempo;
+        //En este ciclo graficamos al proceso actual en todos los ciclos que ocupa
+        for (int ciclo = 0; ciclo < p.burstTime; ciclo++) {
             if (gantt) {
-                gantt->agregarBloqueEnTiempoReal(elegido->pid, tiempo + ciclo);
-                delay(300);
+                gantt->agregarBloqueEnTiempoReal(p.pid, tiempo + ciclo);
+                delay(300); // Establecemos en delay de 3 segundos
             }
         }
-        elegido->completionTime = tiempo + elegido->burstTime;
-        elegido->turnaroundTime = elegido->completionTime - elegido->arrivalTime;
-        elegido->waitingTime = elegido->startTime - elegido->arrivalTime;
-        tiempo = elegido->completionTime;
-
-        ejecucion.push_back(*elegido);
-        pendientes.erase(std::remove_if(pendientes.begin(), pendientes.end(),
-                          [&](const Proceso& p){ return p.pid == elegido->pid; }),
-                          pendientes.end());
+        p.completionTime = tiempo + p.burstTime;
+        p.waitingTime = p.completionTime - p.startTime;
+        p.turnaroundTime = p.completionTime - p.arrivalTime;
+        tiempo = p.completionTime;
     }
     return ejecucion;
 }
