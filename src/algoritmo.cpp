@@ -3,11 +3,20 @@
 #include <queue>
 #include <map>
 #include "priorityQueue.h"
+#include "ganttwindow.h"
+#include <QThread> 
+#include <QApplication>
+
+
+void delay(int milisegundos) {
+    QThread::msleep(milisegundos);
+    QApplication::processEvents(); // Procesar eventos de la GUI
+}
 
 // ---------------------
 // First In First Out
 // ---------------------
-std::vector<Proceso> fifo(const std::vector<Proceso>& procesos) {
+std::vector<Proceso> fifo(const std::vector<Proceso>& procesos, GanttWindow* gantt) {
     std::vector<Proceso> resultado = procesos;
     std::sort(resultado.begin(), resultado.end(), [](const Proceso& a, const Proceso& b) {
         return a.arrivalTime < b.arrivalTime;
@@ -18,6 +27,13 @@ std::vector<Proceso> fifo(const std::vector<Proceso>& procesos) {
         if (tiempo < p.arrivalTime)
             tiempo = p.arrivalTime;
         p.startTime = tiempo;
+        //En este ciclo graficamos al proceso actual en todos los ciclos que ocupa
+        for (int ciclo = 0; ciclo < p.burstTime; ciclo++) {
+            if (gantt) {
+                gantt->agregarBloqueEnTiempoReal(p.pid, tiempo + ciclo);
+                delay(300); // Establecemos en delay de 3 segundos
+            }
+        }
         p.completionTime = tiempo + p.burstTime;
         p.waitingTime = p.startTime - p.arrivalTime;
         p.turnaroundTime = p.completionTime - p.arrivalTime;
@@ -29,7 +45,8 @@ std::vector<Proceso> fifo(const std::vector<Proceso>& procesos) {
 // ---------------------
 // Round Robin
 // ---------------------
-std::vector<Proceso> roundRobin(const std::vector<Proceso>& procesosOriginal, int quantum, std::vector<BloqueGantt>& bloques) {
+std::vector<Proceso> roundRobin(const std::vector<Proceso>& procesosOriginal, int quantum, std::vector<BloqueGantt>& bloques, 
+GanttWindow* gantt) {
     std::vector<Proceso> resultado;
     std::vector<Proceso> procesos = procesosOriginal;
     std::sort(procesos.begin(), procesos.end(), [](const Proceso& a, const Proceso& b) {
@@ -64,6 +81,12 @@ std::vector<Proceso> roundRobin(const std::vector<Proceso>& procesosOriginal, in
             primeraEjecucion[actual.pid] = tiempo;
 
         int ejecutar = std::min(quantum, tiempoRestante[actual.pid]);
+        for (int ciclo = 0; ciclo < ejecutar; ciclo++) {
+            if (gantt) {
+                gantt->agregarBloqueEnTiempoReal(actual.pid, tiempo + ciclo);
+                delay(300); 
+            }
+        }
         bloques.push_back({actual.pid, tiempo, ejecutar});
         tiempoRestante[actual.pid] -= ejecutar;
         tiempo += ejecutar;
@@ -94,7 +117,7 @@ std::vector<Proceso> roundRobin(const std::vector<Proceso>& procesosOriginal, in
 // ---------------------
 // Shortest Job First
 // ---------------------
-std::vector<Proceso> shortestJobFirst(const std::vector<Proceso>& procesos) {
+std::vector<Proceso> shortestJobFirst(const std::vector<Proceso>& procesos, GanttWindow* gantt) {
     auto pendientes = procesos;
     std::vector<Proceso> ejecucion;
     int tiempo = 0;
@@ -121,6 +144,12 @@ std::vector<Proceso> shortestJobFirst(const std::vector<Proceso>& procesos) {
         auto elegido = *std::min_element(ready.begin(), ready.end(), cmpBurst);
 
         elegido->startTime = tiempo;
+        for (int ciclo = 0; ciclo < elegido->burstTime; ciclo++) {
+            if (gantt) {
+                gantt->agregarBloqueEnTiempoReal(elegido->pid, tiempo + ciclo);
+                delay(300);
+            }
+        }
         elegido->completionTime = tiempo + elegido->burstTime;
         elegido->turnaroundTime = elegido->completionTime - elegido->arrivalTime;
         elegido->waitingTime = elegido->startTime - elegido->arrivalTime;
@@ -137,7 +166,7 @@ std::vector<Proceso> shortestJobFirst(const std::vector<Proceso>& procesos) {
 // ---------------------
 // Priority Scheduling
 // ---------------------
-std::vector<Proceso> priorityScheduling(const std::vector<Proceso>& procesos) {
+std::vector<Proceso> priorityScheduling(const std::vector<Proceso>& procesos, GanttWindow* gantt) {
     auto pendientes = procesos;
     std::vector<Proceso> ejecucion;
     int tiempo = 0;
@@ -163,6 +192,11 @@ std::vector<Proceso> priorityScheduling(const std::vector<Proceso>& procesos) {
         auto elegido = *std::min_element(ready.begin(), ready.end(), cmpPriority);
 
         elegido->startTime = tiempo;
+        for (int ciclo = 0; ciclo < elegido->burstTime; ciclo++) {
+            if (gantt) {
+                gantt->agregarBloqueEnTiempoReal(elegido->pid, tiempo + ciclo);
+                delay(300);
+            }
         elegido->completionTime = tiempo + elegido->burstTime;
         elegido->turnaroundTime = elegido->completionTime - elegido->arrivalTime;
         elegido->waitingTime = elegido->startTime - elegido->arrivalTime;
@@ -172,6 +206,7 @@ std::vector<Proceso> priorityScheduling(const std::vector<Proceso>& procesos) {
         pendientes.erase(std::remove_if(pendientes.begin(), pendientes.end(),
                           [&](const Proceso& p){ return p.pid == elegido->pid; }),
                           pendientes.end());
+        }
     }
     return ejecucion;
 }
@@ -181,7 +216,7 @@ std::vector<Proceso> priorityScheduling(const std::vector<Proceso>& procesos) {
 // -----------------------------------
 std::vector<Proceso> shortestRemainingTime(
     const std::vector<Proceso>& procesosOriginal,
-    std::vector<BloqueGantt>& bloques)
+    std::vector<BloqueGantt>& bloques, GanttWindow* gantt)
 {
     // 1) Copiar y ordenar por arrivalTime
     std::vector<Proceso> procesos = procesosOriginal;
@@ -268,8 +303,14 @@ std::vector<Proceso> shortestRemainingTime(
                 break;
             }
         }
+        
 
         // 8) Ejecutar un ciclo
+
+        if (gantt) {
+            gantt->agregarBloqueEnTiempoReal(procesoActual.pid, tiempo);
+            delay(300);
+        }
         tiempo++;
         tickActual++;
         tiempoRestante[procesoActual.pid]--;
