@@ -30,6 +30,9 @@ private slots:
     // Simulación B
     void onSimulacionBClicked();
 
+    // Slot para abrir el archivo resultados_simA.txt
+    void onAbrirResultadosAClicked();
+
     // Archivo procesos (Simulación A)
     void onSeleccionarArchivo();
     void onArchivoDefault();
@@ -61,6 +64,8 @@ private:
     QGroupBox   *grupoSimulacion;      // Botones “Simulación A” y “Simulación B”
     QPushButton *btnSimA;
     QPushButton *btnSimB;
+
+    QPushButton *btnAbrirResultadosA;  // Botón que abre el .txt de Simulación A
 
     // --- Controles de Simulación B ---
     QGroupBox   *grupoSync;            // Contiene 3 subgrupos para procesos, recursos y acciones
