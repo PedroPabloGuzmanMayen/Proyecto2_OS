@@ -169,10 +169,11 @@ void GanttWindow::agregarBloqueSync(const QString &pid,
     statusLabel->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 
     // 5) Crear el QLabel del bloque de 40×40
-    QString textoInterno = QString("%1\n%2: %3")
+    QString textoInterno = QString("%1\n%2: %3\n%4")
                               .arg(pid)                  // e.g. "P1"
                               .arg(accion.left(1))       // "R" o "W"
-                              .arg(recurso);             // e.g. "R1"
+                              .arg(recurso)
+                              .arg(ciclo);             // e.g. "R1"
 
     QLabel *bloqueUnitario = new QLabel(textoInterno, wrapper);
     bloqueUnitario->setFixedSize(ANCHO_BASE_UNIDAD, ALTO_UNIDAD);
