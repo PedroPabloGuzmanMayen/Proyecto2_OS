@@ -547,31 +547,6 @@ void SimuladorGUI::onSimulacionBClicked() {
         // La alerta ya se mostró automáticamente en las funciones de validación
         return;
     }
-
-    // 5) Construir el HTML para el cuadro de diálogo (opcional)
-    QString resultadoHtml;
-    resultadoHtml.reserve(timeline.size() * 50);
-    for (const auto &b : timeline) {
-        QString estadoColor = b.accessed
-            ? "<span style='color:green; font-weight:bold;'>ACCESS</span>"
-            : "<span style='color:red; font-weight:bold;'>WAIT</span>";
-        resultadoHtml += QString("%1 | %2 | Ciclo: %3 | %4<br>")
-                             .arg(b.pid)
-                             .arg(b.recurso)
-                             .arg(b.start)
-                             .arg(estadoColor);
-    }
-    if (resultadoHtml.isEmpty()) {
-        resultadoHtml = "No se generó ningún bloque para Simulación B.";
-    }
-
-    // 6) Mostrar un QMessageBox con ese HTML (opcional)
-    QMessageBox msg(this);
-    msg.setWindowTitle("Resultado Simulación B");
-    msg.setTextFormat(Qt::RichText);
-    msg.setText(resultadoHtml);
-    msg.setStandardButtons(QMessageBox::Ok);
-    msg.exec();
 }
 
 void SimuladorGUI::onAbrirResultadosAClicked() {
