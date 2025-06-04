@@ -3,6 +3,16 @@
 #include <QFont>
 #include <algorithm>
 #include <limits>
+#include <QTextStream>
+#include <QDesktopServices>
+#include <QUrl>
+#include <QFile>
+#include <QMessageBox>
+#include <QTextStream>
+#include <QProcess>
+#include <QDialog>
+#include <QVBoxLayout>
+#include <QTextEdit>
 
 EstadisticasWindow::EstadisticasWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -102,6 +112,12 @@ void EstadisticasWindow::configurarInterfaz()
     connect(btnCalcular, &QPushButton::clicked, this, &EstadisticasWindow::onCalcularEstadisticas);
     
     layoutPrincipal->addWidget(btnCalcular);
+
+    // boton para abrir resultados Estadísticas
+    btnAbrirResultadosEstadisticas = new QPushButton("Abrir resultados Estadísticas", this);
+    layoutPrincipal->addWidget(btnAbrirResultadosEstadisticas);
+    connect(btnAbrirResultadosEstadisticas, &QPushButton::clicked,
+            this, &EstadisticasWindow::onAbrirResultadosEstadisticasClicked);
     
     // --- Grupo: Resultados ---
     grupoResultados = new QGroupBox("Resultados Comparativos", this);
@@ -213,6 +229,41 @@ void EstadisticasWindow::onCalcularEstadisticas()
     
     // Mostrar mejor algoritmo
     mostrarMejorAlgoritmo(resultados);
+    
+    // resultados_estadisticas.txt
+    {
+        QString rutaSalida = "resultados_estadisticas.txt";
+        QFile file(rutaSalida);
+        if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            QTextStream out(&file);
+            // Encabezado CSV
+            out << "Algoritmo,TiempoEsperaPromedio,Estado\n";
+            // Volcar cada resultado de algoritmo
+            for (const ResultadoAlgoritmo &r : resultados) {
+                out << r.nombre << ","
+                    << r.tiempoEsperaPromedio << ","
+                    << (r.ejecutado ? "Completado" : "Error") << "\n";
+            }
+            // Opcional: detalle por proceso en cada algoritmo
+            out << "\n--- Detalle por algoritmo ---\n";
+            for (const ResultadoAlgoritmo &r : resultados) {
+                if (!r.ejecutado) continue;
+                out << "\n" << r.nombre << "\n";
+                out << "PID,Start,Completion,Waiting,Turnaround\n";
+                for (const Proceso &p : r.procesosEjecutados) {
+                    out << p.pid << ","
+                        << p.startTime << ","
+                        << p.completionTime << ","
+                        << p.waitingTime << ","
+                        << p.turnaroundTime << "\n";
+                }
+            }
+            file.close();
+        } else {
+            QMessageBox::warning(this, "Error al escribir archivo",
+                                 "No se pudo crear 'resultados_estadisticas.txt'.");
+        }
+    }
 }
 
 std::vector<ResultadoAlgoritmo> EstadisticasWindow::ejecutarAlgoritmos(const std::vector<Proceso>& procesos)
@@ -355,4 +406,40 @@ void EstadisticasWindow::mostrarMejorAlgoritmo(const std::vector<ResultadoAlgori
     } else {
         labelMejorAlgoritmo->setText("No se pudo determinar el mejor algoritmo");
     }
+}
+
+void EstadisticasWindow::onAbrirResultadosEstadisticasClicked() {
+    // 1) Ruta absoluta a build/
+    QString rutaSalida = QDir::current().absoluteFilePath("resultados_estadisticas.txt");
+
+    // 2) Verificar existencia
+    if (!QFile::exists(rutaSalida)) {
+        QMessageBox::warning(this, "Archivo no encontrado",
+                             "No existe 'resultados_estadisticas.txt'. Ejecuta primero Calcular Estadísticas.");
+        return;
+    }
+
+    // 3) Leer contenido del TXT
+    QFile file(rutaSalida);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QMessageBox::warning(this, "Error al leer archivo",
+                             QString("No se pudo abrir '%1' para lectura.").arg(rutaSalida));
+        return;
+    }
+    QTextStream in(&file);
+    QString contenido = in.readAll();
+    file.close();
+
+    // 4) Mostrar en un diálogo con QTextEdit
+    QDialog dialog(this);
+    dialog.setWindowTitle("Resultados Estadísticas");
+    dialog.resize(600, 400);
+
+    QVBoxLayout *layout = new QVBoxLayout(&dialog);
+    QTextEdit *textEdit = new QTextEdit(&dialog);
+    textEdit->setReadOnly(true);
+    textEdit->setPlainText(contenido);
+    layout->addWidget(textEdit);
+
+    dialog.exec();
 }
