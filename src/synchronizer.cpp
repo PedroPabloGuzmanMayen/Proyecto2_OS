@@ -6,7 +6,18 @@
 #include <algorithm>
 #include <queue>
 #include <unordered_map>
+#include <QMessageBox>
+#include <QWidget>
+#include <QThread>
+#include <QApplication>
+#include "ganttwindow.h"
 
+
+// Función de delay
+void delaySync(int milisegundos) {
+    QThread::msleep(milisegundos);
+    QApplication::processEvents(); // Procesar eventos de la GUI
+}
 /**
  * Carga procesos desde archivo. Cada línea con formato:
  *   <PID>,<BT>,<AT>,<Priority>
@@ -108,14 +119,17 @@ std::vector<Accion> loadAcciones(const QString &ruta) {
     return v;
 }
 
-void validateAndSortActions(std::vector<Accion> &acciones, 
+bool validateAndSortActions(std::vector<Accion> &acciones, 
                            const std::vector<Proceso> &procesos,
+                           QWidget *parent = nullptr,
                            bool isMutex = false) {
     // Crear mapa de procesos para acceso rápido
     std::unordered_map<QString, Proceso> procesoMap;
     for (const auto &p : procesos) {
         procesoMap[p.pid] = p;
     }
+    // Lista para acumular todos los errores encontrados
+    QStringList errores;
 
     // Validar que cada acción tenga un ciclo >= arrival time del proceso
     for (const auto &accion : acciones) {
@@ -123,15 +137,35 @@ void validateAndSortActions(std::vector<Accion> &acciones,
         if (it == procesoMap.end()) {
             QString error = QString("Proceso %1 no encontrado para acción en ciclo %2")
                            .arg(accion.pid).arg(accion.cycle);
-            throw std::runtime_error(error.toStdString());
+            errores.append(error);
+            qDebug() << "ERROR:" << error;
+            continue;
         }
         
         const Proceso &proceso = it->second;
         if (accion.cycle < proceso.arrivalTime) {
-            QString error = QString("Error: Proceso %1 intenta acción en ciclo %2 pero su arrival time es %3")
+             QString error = QString("Proceso %1 intenta acción en ciclo %2 pero su arrival time es %3")
                            .arg(accion.pid).arg(accion.cycle).arg(proceso.arrivalTime);
-            throw std::runtime_error(error.toStdString());
+            errores.append(error);
+            qDebug() << "ERROR:" << error;
         }
+    }
+
+    if (!errores.isEmpty()) {
+        QString mensajeCompleto = "Se encontraron los siguientes errores de validación:\n\n";
+        for (int i = 0; i < errores.size(); ++i) {
+            mensajeCompleto += QString("%1. %2\n").arg(i + 1).arg(errores[i]);
+        }
+        mensajeCompleto += "\nLa simulación no puede continuar.";
+
+        // Mostrar alert si se proporciona un parent
+        if (parent != nullptr) {
+            QMessageBox::critical(parent, 
+                                "Error de Validación - Sincronizador", 
+                                mensajeCompleto);
+        }
+        
+        return false;
     }
 
     // Ordenar acciones por ciclo, luego por prioridad del proceso
@@ -153,6 +187,8 @@ void validateAndSortActions(std::vector<Accion> &acciones,
                   // Si tienen la misma prioridad, ordenar por PID para consistencia
                   return A.pid < B.pid;
               });
+
+    return true;
 }
 
 /**
@@ -208,7 +244,10 @@ struct ResState {
 std::vector<BloqueSync> simulateSync(
     const std::vector<Accion> &acciones,
     const std::vector<Proceso> &procesos,
-    std::vector<Recurso> &recursosVec, bool isMutex = false)
+    std::vector<Recurso> &recursosVec,
+    bool isMutex,
+    GanttWindow *gantt,
+    QWidget *parent)
 {
     // Crear mapa de procesos para acceso rápido a prioridades
     std::unordered_map<QString, Proceso> procesoMap;
@@ -217,7 +256,11 @@ std::vector<BloqueSync> simulateSync(
     }
     // Crear copia de acciones para validar y ordenar
     std::vector<Accion> accionesOrdenadas = acciones;
-    validateAndSortActions(accionesOrdenadas, procesos, isMutex);
+    // Validar acciones antes de continuar
+    if (!validateAndSortActions(accionesOrdenadas, procesos, parent, isMutex)) {
+        qDebug() << "SIMULACIÓN ABORTADA: Errores en la validación de acciones";
+        return std::vector<BloqueSync>(); // Retornar vector vacío en caso de error
+    }
     //Mapa de recursos
     std::unordered_map<QString, ResState> resMap;
     for (const auto &r : recursosVec) {
@@ -267,32 +310,58 @@ std::vector<BloqueSync> simulateSync(
             // Agregar a la cola de espera
             rs.waitingQueue.push({a.pid, a.recurso, accionStr, a.cycle, prioridad});
             int nextFree = rs.endTimes.empty() ? a.cycle : rs.endTimes.top();
-            if (nextFree > a.cycle) {
-                // GENERAR WAIT:
-                timeline.push_back({
-                    a.pid,        // PID del proceso
-                    a.recurso,      // Nombre del recurso
-                    accionStr,      // "READ" o "WRITE"
-                    a.cycle,      // Inicio de la espera (ciclo original)
-                    nextFree - a.cycle, // Duración de la espera
-                    false         // false = WAIT
-                });
-                // Actualizamos startAccess para que el ACCESS ocurra en nextFree
-                startAccess = nextFree;
-                // Liberamos la plaza que se va a usar
-                rs.endTimes.pop();
+            //Generar diagrama
+            BloqueSync waitBlock = {
+                a.pid,
+                a.recurso,
+                accionStr,
+                a.cycle,
+                nextFree - a.cycle, // Duración de la espera
+                false // false = WAIT
+            };
+            timeline.push_back(waitBlock);
+            //Dibujar wait
+            if (gantt != nullptr) {
+                for (int offset = 0; offset < waitBlock.duration; ++offset) {
+                    int cicloActual = waitBlock.start + offset;
+                    gantt->agregarBloqueSync(
+                        waitBlock.pid,
+                        waitBlock.recurso,
+                        waitBlock.accion,
+                        cicloActual,
+                        false // WAIT
+                    );
+                    delaySync(3000); 
+                }
             }
+
+            startAccess = nextFree;
+            rs.endTimes.pop();
         }
 
-        // Una vez pase la espera (o si no hubo que esperar), generamos el bloque ACCESS
-        timeline.push_back({
-            a.pid,        // PID
-            a.recurso,    // Recurso
-            accionStr,     // "READ" o "WRITE"
-            startAccess,  // Ciclo de inicio del acceso efectivo
-            1,            // Duración = 1 ciclo para el ACCESS
-            true          // true = ACCESS
-        });
+        //Generar access
+        BloqueSync accessBlock = {
+            a.pid,
+            a.recurso,
+            accionStr,
+            startAccess,
+            1, // Duración = 1 ciclo
+            true // true = ACCESS
+        };
+        timeline.push_back(accessBlock);
+        
+        // Dibujar ACCESS 
+        if (gantt != nullptr) {
+            gantt->agregarBloqueSync(
+                accessBlock.pid,
+                accessBlock.recurso,
+                accessBlock.accion,
+                startAccess,
+                true // ACCESS
+            );
+            delaySync(3000); 
+        }
+        
         // Registramos que esa plaza se liberará en (startAccess + 1)
         rs.endTimes.push(startAccess + 1);
     }
@@ -303,15 +372,20 @@ std::vector<BloqueSync> simulateSync(
 std::vector<BloqueSync> simulateMutex(
     const std::vector<Accion> &acciones,
     std::vector<Recurso> &recursosVec,
-    const std::vector<Proceso> &procesos)
+    const std::vector<Proceso> &procesos,
+    GanttWindow *gantt,
+    QWidget *parent)
 {
-    return simulateSync(acciones, procesos, recursosVec, true);
+
+    return simulateSync(acciones, procesos, recursosVec, true, gantt, parent);
 }
 
 std::vector<BloqueSync> simulateSyncSemaforo(
     const std::vector<Accion> &acciones,
     std::vector<Recurso> &recursosVec,
-    const std::vector<Proceso> &procesos)
+    const std::vector<Proceso> &procesos,
+    GanttWindow *gantt,
+    QWidget *parent)
 {
-    return simulateSync(acciones, procesos, recursosVec, false);
+    return simulateSync(acciones, procesos, recursosVec, false, gantt, parent);
 }
