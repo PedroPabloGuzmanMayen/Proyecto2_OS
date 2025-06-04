@@ -527,11 +527,11 @@ void SimuladorGUI::onSimulacionBClicked() {
     std::vector<BloqueSync> timeline;
     if (!usarSemaforo) {
         // Modo Mutex (contador implícito = 1 por recurso)
-        timeline = simulateSync(actsSync, recsSync);
+        timeline = simulateMutex(actsSync, recsSync, procSync);
     } else {
         // Modo Semáforo (contador > 1 en recursos)
         // Supón que tienes otra función simulateSyncSemaforo(...) que maneje semáforos.
-        timeline = simulateSyncSemaforo(actsSync, recsSync);
+        timeline = simulateSyncSemaforo(actsSync, recsSync, procSync);
     }
 
     // 4) CREAR (o reemplazar) el GanttWindow para mostrar los bloques coloreados
