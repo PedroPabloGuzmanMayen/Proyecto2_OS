@@ -485,7 +485,7 @@ std::vector<BloqueSync> simulateSync(
                         cicloActual,
                         false // WAIT
                     );
-                    delaySync(3000);
+                    delaySync(500);
                 }
             }
 
