@@ -59,12 +59,21 @@ std::vector<Accion> loadAcciones(const QString &ruta);
  * - `acciones` debe estar ordenado por cycle ascendente.
  * - `recursos` proporciona el contador inicial de cada recurso.
  */
+
 std::vector<BloqueSync> simulateSync(
     const std::vector<Accion> &acciones,
-    std::vector<Recurso> &recursos
-);
+    const std::vector<Proceso> &procesos,
+    std::vector<Recurso> &recursosVec, bool isMutex);
 
-std::vector<BloqueSync> simulateSyncSemaforo(const std::vector<Accion> &acciones,
-                                              std::vector<Recurso> &recursos);
+std::vector<BloqueSync> simulateMutex(
+    const std::vector<Accion> &acciones,
+    std::vector<Recurso> &recursosVec,
+    const std::vector<Proceso> &procesos);
+
+std::vector<BloqueSync> simulateSyncSemaforo(
+    const std::vector<Accion> &acciones,
+    std::vector<Recurso> &recursosVec,
+    const std::vector<Proceso> &procesos);
+
 
 #endif // SYNCHRONIZER_H
