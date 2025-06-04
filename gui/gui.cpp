@@ -522,19 +522,7 @@ void SimuladorGUI::onSimulacionBClicked() {
         return;
     }
 
-    // 3) Revisar el modo seleccionado (Mutex vs Semáforo)
-    bool usarSemaforo = rbSemaforo->isChecked();
-    std::vector<BloqueSync> timeline;
-    if (!usarSemaforo) {
-        // Modo Mutex (contador implícito = 1 por recurso)
-        timeline = simulateMutex(actsSync, recsSync, procSync);
-    } else {
-        // Modo Semáforo (contador > 1 en recursos)
-        // Supón que tienes otra función simulateSyncSemaforo(...) que maneje semáforos.
-        timeline = simulateSyncSemaforo(actsSync, recsSync, procSync);
-    }
-
-    // 4) CREAR (o reemplazar) el GanttWindow para mostrar los bloques coloreados
+    // 3) CREAR el GanttWindow para mostrar los bloques coloreados
     if (ganttWidget) {
         layout->removeWidget(ganttWidget);
         delete ganttWidget;
@@ -543,24 +531,20 @@ void SimuladorGUI::onSimulacionBClicked() {
     ganttWidget = new GanttWindow(this);
     layout->addWidget(ganttWidget);
 
-    // 5) Pintar cada bloque en el GanttWindow pasando PID, Recurso y Acción (verde para ACCESS, rojo para WAIT)
-    for (const BloqueSync &b : timeline) {
-        int inicio   = b.start;
-        int duracion = b.duration;
-        for (int offset = 0; offset < duracion; ++offset) {
-            int cicloActual = inicio + offset;
-            // Llamamos a la nueva firma: (pid, recurso, accion, ciclo, accessed)
-            static_cast<GanttWindow*>(ganttWidget)
-                ->agregarBloqueSync(
-                    b.pid,          // nombre del proceso
-                    b.recurso,      // recurso sobre el que actúa
-                    b.accion,       // "READ" o "WRITE"
-                    cicloActual,    // ciclo actual (start + offset)
-                    b.accessed      // true = ACCESS, false = WAIT
-                );
-            QThread::msleep(200);           // breve retardo para la animación
-            QApplication::processEvents();  // refresco de la GUI
-        }
+    // 3) Revisar el modo seleccionado (Mutex vs Semáforo)
+    bool usarSemaforo = rbSemaforo->isChecked();
+    std::vector<BloqueSync> timeline;
+    if (!usarSemaforo) {
+        // Modo Mutex (contador implícito = 1 por recurso)
+        timeline = simulateMutex(actsSync, recsSync, procSync, static_cast<GanttWindow*>(ganttWidget), this);
+    } else {
+        // Modo Semáforo (contador > 1 en recursos)
+        timeline = simulateSyncSemaforo(actsSync, recsSync, procSync, static_cast<GanttWindow*>(ganttWidget), this);
+    }
+
+    if (timeline.empty()) {
+        // La alerta ya se mostró automáticamente en las funciones de validación
+        return;
     }
 
     // 6) Construir el HTML para el cuadro de diálogo (opcional)
