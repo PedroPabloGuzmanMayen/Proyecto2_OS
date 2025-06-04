@@ -27,6 +27,7 @@ struct Accion {
 struct BloqueSync {
     QString pid;
     QString recurso;
+    QString accion; // "READ" o "WRITE"
     int start;      // ciclo de inicio
     int duration;   // siempre 1 ciclo
     bool accessed;  // true = ACCESS, false = WAIT
