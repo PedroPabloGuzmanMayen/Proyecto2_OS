@@ -505,14 +505,21 @@ void SimuladorGUI::onSimulacionBClicked() {
     ganttWidget = new GanttWindow(this);
     layout->addWidget(ganttWidget);
 
-    // 5) Pintar cada bloque en el GanttWindow (verde para ACCESS, rojo para WAIT)
+    // 5) Pintar cada bloque en el GanttWindow pasando PID, Recurso y Acción (verde para ACCESS, rojo para WAIT)
     for (const BloqueSync &b : timeline) {
         int inicio   = b.start;
         int duracion = b.duration;
         for (int offset = 0; offset < duracion; ++offset) {
             int cicloActual = inicio + offset;
+            // Llamamos a la nueva firma: (pid, recurso, accion, ciclo, accessed)
             static_cast<GanttWindow*>(ganttWidget)
-                ->agregarBloqueSync(b.pid, cicloActual, b.accessed);
+                ->agregarBloqueSync(
+                    b.pid,          // nombre del proceso
+                    b.recurso,      // recurso sobre el que actúa
+                    b.accion,       // "READ" o "WRITE"
+                    cicloActual,    // ciclo actual (start + offset)
+                    b.accessed      // true = ACCESS, false = WAIT
+                );
             QThread::msleep(200);           // breve retardo para la animación
             QApplication::processEvents();  // refresco de la GUI
         }
