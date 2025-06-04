@@ -124,7 +124,12 @@ void GanttWindow::limpiarDiagrama() {
 }
 
 // Bloque para Simulación B (ACCESS vs WAIT)
-void GanttWindow::agregarBloqueSync(const QString &pid, int ciclo, bool accessed) {
+void GanttWindow::agregarBloqueSync(const QString &pid,
+                                    const QString &recurso,
+                                    const QString &accion, // "READ" o "WRITE"
+                                    int ciclo,
+                                    bool accessed) 
+{
     // 1) Actualizar la etiqueta de ciclo
     actualizarNumeroCiclo(ciclo);
 
@@ -139,9 +144,13 @@ void GanttWindow::agregarBloqueSync(const QString &pid, int ciclo, bool accessed
         colorProceso = QColor(200, 50, 50);
     }
 
-    // 3) Crear la etiqueta del bloque con PID y ciclo (dos líneas)
-    QLabel *bloqueUnitario = new QLabel(QString("%1\n%2").arg(pid).arg(ciclo),
-                                        contenedorBloques);
+    // 3) Crear la etiqueta del bloque con PID, acción y recurso en dos líneas
+    //    Ejemplo de texto interno: "P1\nR: R1"   (R = READ)  o  "P2\nW: R2" (W = WRITE)
+    QString textoInterno = QString("%1\n%2: %3")
+                              .arg(pid)
+                              .arg(accion.left(1))   // toma "R" o "W"
+                              .arg(recurso);
+    QLabel *bloqueUnitario = new QLabel(textoInterno, contenedorBloques);
     bloqueUnitario->setFixedSize(ANCHO_BASE_UNIDAD, ALTO_UNIDAD);
     bloqueUnitario->setAlignment(Qt::AlignCenter);
     bloqueUnitario->setFrameShape(QFrame::Box);
@@ -157,10 +166,12 @@ void GanttWindow::agregarBloqueSync(const QString &pid, int ciclo, bool accessed
         "background-color: %1; color: white; border: 1px solid #444; margin: 0; padding: 0;")
         .arg(colorProceso.name()));
 
-    // Tooltip con información completa (PID, estado y ciclo)
+    // Tooltip con información completa (PID, accion, recurso, estado y ciclo)
     bloqueUnitario->setToolTip(
-        QString("Proceso: %1\nEstado: %2\nCiclo: %3")
+        QString("Proceso: %1\nAcción: %2\nRecurso: %3\nEstado: %4\nCiclo: %5")
             .arg(pid)
+            .arg(accion)                          // "READ" o "WRITE"
+            .arg(recurso)                         // nombre del recurso
             .arg(accessed ? "ACCESS" : "WAIT")
             .arg(ciclo)
     );
