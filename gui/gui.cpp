@@ -8,6 +8,15 @@
 #include "ganttwindow.h"     // Necesario para usar GanttWindow
 #include <QThread>           // Para QThread::msleep
 #include <QApplication>      // Para processEvents()
+#include <QDesktopServices>  
+#include <QUrl>
+#include <QTextStream>
+#include <QFile>
+#include <QMessageBox>
+#include <QProcess>
+#include <QDialog>
+#include <QVBoxLayout>
+#include <QTextEdit>
 
 // Constructor principal
 SimuladorGUI::SimuladorGUI(QWidget *parent)
@@ -93,6 +102,12 @@ SimuladorGUI::SimuladorGUI(QWidget *parent)
     connect(btnSimB, &QPushButton::clicked, this, &SimuladorGUI::onSimulacionBClicked);
 
     layout->addWidget(grupoSimulacion);
+
+    // Botón “Abrir resultados Simulación A” 
+    btnAbrirResultadosA = new QPushButton("Abrir resultados Simulación A", this);
+    layout->addWidget(btnAbrirResultadosA);
+    connect(btnAbrirResultadosA, &QPushButton::clicked,
+            this, &SimuladorGUI::onAbrirResultadosAClicked);
 
     // ------ Grupo: Simulación B (Sincronización) ------
     grupoSync = new QGroupBox("Archivos Simulación B (Mutex/Semáforo)", this);
@@ -441,6 +456,29 @@ void SimuladorGUI::onSimulacionAClicked() {
         return;
     }
 
+    // ESCRIBIR resultados_simA.txt
+    {
+        QString rutaSalida = "resultados_simA.txt";
+        QFile file(rutaSalida);
+        if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            QTextStream out(&file);
+            // Escribir encabezado CSV
+            out << "PID,StartTime,CompletionTime,WaitingTime,TurnaroundTime\n";
+            // Recorrer cada proceso ya ejecutado y escribir sus métricas
+            for (const Proceso &p : ejecutados) {
+                out << p.pid << ","
+                    << p.startTime << ","
+                    << p.completionTime << ","
+                    << p.waitingTime << ","
+                    << p.turnaroundTime << "\n";
+            }
+            file.close();
+        } else {
+            QMessageBox::warning(this, "Error al escribir archivo",
+                                 "No se pudo crear 'resultados_simA.txt'.");
+        }
+    }
+
     // 4) Mostrar orden y tiempo promedio
     QString resultado = "Orden de ejecución:\n";
     for (const auto& p : ejecutados) {
@@ -549,4 +587,40 @@ void SimuladorGUI::onSimulacionBClicked() {
     msg.setText(resultadoHtml);
     msg.setStandardButtons(QMessageBox::Ok);
     msg.exec();
+}
+
+void SimuladorGUI::onAbrirResultadosAClicked() {
+    // 1) Ruta absoluta dentro de build/
+    QString rutaSalida = QDir::current().absoluteFilePath("resultados_simA.txt");
+
+    // 2) Verificar que exista el archivo
+    if (!QFile::exists(rutaSalida)) {
+        QMessageBox::warning(this, "Archivo no encontrado",
+                             "No existe 'resultados_simA.txt'. Ejecuta primero Simulación A.");
+        return;
+    }
+
+    // 3) Leer el contenido completo del archivo
+    QFile file(rutaSalida);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QMessageBox::warning(this, "Error al leer archivo",
+                             QString("No se pudo abrir '%1' para lectura.").arg(rutaSalida));
+        return;
+    }
+    QTextStream in(&file);
+    QString contenido = in.readAll();
+    file.close();
+
+    // 4) Crear un diálogo modal con QTextEdit para mostrarlo
+    QDialog dialog(this);
+    dialog.setWindowTitle("Resultados Simulación A");
+    dialog.resize(600, 400);
+
+    QVBoxLayout *layout = new QVBoxLayout(&dialog);
+    QTextEdit *textEdit = new QTextEdit(&dialog);
+    textEdit->setReadOnly(true);
+    textEdit->setPlainText(contenido);
+    layout->addWidget(textEdit);
+
+    dialog.exec();
 }
