@@ -39,6 +39,7 @@ private slots:
     void onSeleccionarArchivo();
     void onArchivoDefault();
     void onCalcularEstadisticas();
+    void onAbrirResultadosEstadisticasClicked();
     void onRoundRobinToggled(bool checked);
 
 private:
@@ -71,6 +72,9 @@ private:
     
     // Layout principal
     QVBoxLayout *layoutPrincipal;
+
+    // botón para abrir resultados de estadísticas
+    QPushButton *btnAbrirResultadosEstadisticas;
     
     // Métodos auxiliares
     void configurarInterfaz();
