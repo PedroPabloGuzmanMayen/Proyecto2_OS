@@ -145,6 +145,10 @@ std::vector<BloqueSync> simulateSync(
     std::vector<BloqueSync> timeline;
 
     for (const auto &a : acciones) {
+
+        // 1) Convertir el tipo de acción a cadena ("READ" o "WRITE")
+        
+        QString accionStr = (a.type == ActionType::READ ? "READ" : "WRITE");
         auto it = resMap.find(a.recurso);
         if (it == resMap.end()) {
             qDebug() << "Acción sobre recurso desconocido:" << a.recurso;
@@ -167,7 +171,8 @@ std::vector<BloqueSync> simulateSync(
                 // GENERAR WAIT:
                 timeline.push_back({
                     a.pid,        // PID del proceso
-                    a.recurso,    // Nombre del recurso
+                    a.recurso,      // Nombre del recurso
+                    accionStr,      // "READ" o "WRITE"
                     a.cycle,      // Inicio de la espera (ciclo original)
                     nextFree - a.cycle, // Duración de la espera
                     false         // false = WAIT
@@ -183,6 +188,7 @@ std::vector<BloqueSync> simulateSync(
         timeline.push_back({
             a.pid,        // PID
             a.recurso,    // Recurso
+            accionStr,     // "READ" o "WRITE"
             startAccess,  // Ciclo de inicio del acceso efectivo
             1,            // Duración = 1 ciclo para el ACCESS
             true          // true = ACCESS
