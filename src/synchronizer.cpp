@@ -100,10 +100,84 @@ std::vector<Accion> loadAcciones(const QString &ruta) {
     // Ordenar acciones por ciclo ascendente
     std::sort(v.begin(), v.end(),
               [](const Accion &A, const Accion &B) {
-                  return A.cycle < B.cycle;
+                  if (A.cycle != B.cycle) {
+                      return A.cycle < B.cycle;
+                  }
+                  return A.pid < B.pid;
               });
     return v;
 }
+
+void validateAndSortActions(std::vector<Accion> &acciones, 
+                           const std::vector<Proceso> &procesos,
+                           bool isMutex = false) {
+    // Crear mapa de procesos para acceso rápido
+    std::unordered_map<QString, Proceso> procesoMap;
+    for (const auto &p : procesos) {
+        procesoMap[p.pid] = p;
+    }
+
+    // Validar que cada acción tenga un ciclo >= arrival time del proceso
+    for (const auto &accion : acciones) {
+        auto it = procesoMap.find(accion.pid);
+        if (it == procesoMap.end()) {
+            QString error = QString("Proceso %1 no encontrado para acción en ciclo %2")
+                           .arg(accion.pid).arg(accion.cycle);
+            throw std::runtime_error(error.toStdString());
+        }
+        
+        const Proceso &proceso = it->second;
+        if (accion.cycle < proceso.arrivalTime) {
+            QString error = QString("Error: Proceso %1 intenta acción en ciclo %2 pero su arrival time es %3")
+                           .arg(accion.pid).arg(accion.cycle).arg(proceso.arrivalTime);
+            throw std::runtime_error(error.toStdString());
+        }
+    }
+
+    // Ordenar acciones por ciclo, luego por prioridad del proceso
+    std::sort(acciones.begin(), acciones.end(),
+              [&procesoMap](const Accion &A, const Accion &B) {
+                  if (A.cycle != B.cycle) {
+                      return A.cycle < B.cycle;
+                  }
+                  
+                  // Si están en el mismo ciclo, ordenar por prioridad
+                  // (menor número = mayor prioridad)
+                  const Proceso &procA = procesoMap[A.pid];
+                  const Proceso &procB = procesoMap[B.pid];
+                  
+                  if (procA.priority != procB.priority) {
+                      return procA.priority < procB.priority;
+                  }
+                  
+                  // Si tienen la misma prioridad, ordenar por PID para consistencia
+                  return A.pid < B.pid;
+              });
+}
+
+/**
+ * Estado interno de cada acción para la simulación:
+ * - pid: pid del proceso que hace la acción
+ * - recurso: recurso que hace la acción.
+ * - acción: acción realizada por el recuros
+ * - cycle: ciclo en el que se realiza
+ * - priroidad: prioridad en del procesi que hace la acción
+ */
+struct AccionEspera {
+    QString pid;
+    QString recurso;
+    QString accionStr;
+    int cycleSolicitado;
+    int prioridad;
+    
+    bool operator<(const AccionEspera &other) const {
+        // La prioridad se hace de mayor a menir
+        if (prioridad != other.prioridad) {
+            return prioridad > other.prioridad;
+        }
+        return pid > other.pid; // Desempate por PID
+    }
+};
 
 /**
  * Estado interno de cada recurso para la simulación:
@@ -112,9 +186,11 @@ std::vector<Accion> loadAcciones(const QString &ruta) {
  */
 struct ResState {
     int capacity = 0;
+    int originalCapacity = 0; // Para logging
     std::priority_queue<int,
         std::vector<int>,
         std::greater<int>> endTimes;
+    std::priority_queue<AccionEspera> waitingQueue; // Cola de procesos esperando
 };
 
 /**
@@ -131,20 +207,39 @@ struct ResState {
  */
 std::vector<BloqueSync> simulateSync(
     const std::vector<Accion> &acciones,
-    std::vector<Recurso> &recursosVec)
+    const std::vector<Proceso> &procesos,
+    std::vector<Recurso> &recursosVec, bool isMutex = false)
 {
+    // Crear mapa de procesos para acceso rápido a prioridades
+    std::unordered_map<QString, Proceso> procesoMap;
+    for (const auto &p : procesos) {
+        procesoMap[p.pid] = p;
+    }
+    // Crear copia de acciones para validar y ordenar
+    std::vector<Accion> accionesOrdenadas = acciones;
+    validateAndSortActions(accionesOrdenadas, procesos, isMutex);
+    //Mapa de recursos
     std::unordered_map<QString, ResState> resMap;
     for (const auto &r : recursosVec) {
         if (r.count <= 0) {
             qDebug() << "Recurso con capacidad inválida:" << r.name << r.count;
             continue;
         }
-        resMap[r.name].capacity = r.count;
+        ResState rs;
+        rs.originalCapacity = r.count;
+        // Si es mutex, limitar a 1 instancia independientemente del valor original
+        rs.capacity = isMutex ? 1 : r.count;
+        
+        if (isMutex && r.count > 1) {
+            qDebug() << "MUTEX: Recurso" << r.name << "limitado a 1 instancia (era" << r.count << ")";
+        }
+        
+        resMap[r.name] = rs;
     }
 
     std::vector<BloqueSync> timeline;
 
-    for (const auto &a : acciones) {
+    for (const auto &a : accionesOrdenadas) {
 
         // 1) Convertir el tipo de acción a cadena ("READ" o "WRITE")
         
@@ -156,6 +251,9 @@ std::vector<BloqueSync> simulateSync(
         }
         auto &rs = it->second;
 
+        // Obtener prioridad del proceso
+        int prioridad = procesoMap[a.pid].priority;
+
         // 1) Liberar accesos terminados ANTES del ciclo actual
         while (!rs.endTimes.empty() && rs.endTimes.top() < a.cycle) {
             rs.endTimes.pop();
@@ -166,6 +264,8 @@ std::vector<BloqueSync> simulateSync(
 
         // 2) Verificar si necesita esperar
         if (used >= rs.capacity) {
+            // Agregar a la cola de espera
+            rs.waitingQueue.push({a.pid, a.recurso, accionStr, a.cycle, prioridad});
             int nextFree = rs.endTimes.empty() ? a.cycle : rs.endTimes.top();
             if (nextFree > a.cycle) {
                 // GENERAR WAIT:
@@ -200,10 +300,18 @@ std::vector<BloqueSync> simulateSync(
     return timeline;
 }
 
+std::vector<BloqueSync> simulateMutex(
+    const std::vector<Accion> &acciones,
+    std::vector<Recurso> &recursosVec,
+    const std::vector<Proceso> &procesos)
+{
+    return simulateSync(acciones, procesos, recursosVec, true);
+}
+
 std::vector<BloqueSync> simulateSyncSemaforo(
     const std::vector<Accion> &acciones,
-    std::vector<Recurso> &recursosVec)
+    std::vector<Recurso> &recursosVec,
+    const std::vector<Proceso> &procesos)
 {
-    
-    return simulateSync(acciones, recursosVec);
+    return simulateSync(acciones, procesos, recursosVec, false);
 }
