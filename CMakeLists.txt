@@ -43,6 +43,7 @@ add_executable(tests
     src/proceso.cpp
     src/priorityQueue.cpp
     src/ganttwindow.cpp
+    src/synchronizer.cpp
 
     ${MOC_SOURCES}
 )
