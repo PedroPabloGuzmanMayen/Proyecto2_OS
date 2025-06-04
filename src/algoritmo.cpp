@@ -1,13 +1,14 @@
 #include "algoritmo.h"
+#include <QDebug>
 #include <algorithm>
 #include <queue>
 #include <map>
 #include "priorityQueue.h"
 #include "ganttwindow.h"
-#include <QThread> 
+#include <QThread>
 #include <QApplication>
 
-
+// Función de delay
 void delay(int milisegundos) {
     QThread::msleep(milisegundos);
     QApplication::processEvents(); // Procesar eventos de la GUI
@@ -17,6 +18,27 @@ void delay(int milisegundos) {
 // First In First Out
 // ---------------------
 std::vector<Proceso> fifo(const std::vector<Proceso>& procesos, GanttWindow* gantt) {
+    // --- Programación defensiva ---
+    if (procesos.empty()) {
+        qDebug() << "fifo: vector de procesos vacío. Abortando.";
+        return {};
+    }
+    for (const auto& p : procesos) {
+        if (p.arrivalTime < 0) {
+            qDebug() << "fifo: arrivalTime inválido en PID" << p.pid << ":" << p.arrivalTime;
+            return {};
+        }
+        if (p.burstTime <= 0) {
+            qDebug() << "fifo: burstTime inválido en PID" << p.pid << ":" << p.burstTime;
+            return {};
+        }
+        if (p.priority < 0) {
+            qDebug() << "fifo: priority inválido en PID" << p.pid << ":" << p.priority;
+            return {};
+        }
+    }
+    // --- Fin defensiva ---
+
     std::vector<Proceso> resultado = procesos;
     std::sort(resultado.begin(), resultado.end(), [](const Proceso& a, const Proceso& b) {
         return a.arrivalTime < b.arrivalTime;
@@ -27,15 +49,15 @@ std::vector<Proceso> fifo(const std::vector<Proceso>& procesos, GanttWindow* gan
         if (tiempo < p.arrivalTime)
             tiempo = p.arrivalTime;
         p.startTime = tiempo;
-        //En este ciclo graficamos al proceso actual en todos los ciclos que ocupa
+        // En este bucle graficamos al proceso actual en todos los ciclos que ocupa
         for (int ciclo = 0; ciclo < p.burstTime; ciclo++) {
             if (gantt) {
                 gantt->agregarBloqueEnTiempoReal(p.pid, tiempo + ciclo);
-                delay(300); // Establecemos en delay de 3 segundos
+                delay(300); // Delay de 300 ms
             }
         }
         p.completionTime = tiempo + p.burstTime;
-        p.waitingTime = p.startTime;
+        p.waitingTime = p.startTime - p.arrivalTime;
         p.turnaroundTime = p.completionTime - p.arrivalTime;
         tiempo = p.completionTime;
     }
@@ -45,8 +67,33 @@ std::vector<Proceso> fifo(const std::vector<Proceso>& procesos, GanttWindow* gan
 // ---------------------
 // Round Robin
 // ---------------------
-std::vector<Proceso> roundRobin(const std::vector<Proceso>& procesosOriginal, int quantum, std::vector<BloqueGantt>& bloques, 
+std::vector<Proceso> roundRobin(const std::vector<Proceso>& procesosOriginal, int quantum, std::vector<BloqueGantt>& bloques,
 GanttWindow* gantt) {
+    // --- Programación defensiva ---
+    if (procesosOriginal.empty()) {
+        qDebug() << "roundRobin: vector de procesos vacío. Abortando.";
+        return {};
+    }
+    if (quantum <= 0) {
+        qDebug() << "roundRobin: quantum inválido:" << quantum;
+        return {};
+    }
+    for (const auto& p : procesosOriginal) {
+        if (p.arrivalTime < 0) {
+            qDebug() << "roundRobin: arrivalTime inválido en PID" << p.pid << ":" << p.arrivalTime;
+            return {};
+        }
+        if (p.burstTime <= 0) {
+            qDebug() << "roundRobin: burstTime inválido en PID" << p.pid << ":" << p.burstTime;
+            return {};
+        }
+        if (p.priority < 0) {
+            qDebug() << "roundRobin: priority inválido en PID" << p.pid << ":" << p.priority;
+            return {};
+        }
+    }
+    // --- Fin defensiva ---
+
     std::vector<Proceso> resultado;
     std::vector<Proceso> procesos = procesosOriginal;
     std::sort(procesos.begin(), procesos.end(), [](const Proceso& a, const Proceso& b) {
@@ -65,7 +112,7 @@ GanttWindow* gantt) {
     size_t i = 0;
 
     while (!cola.empty() || i < procesos.size()) {
-        // Encolar nuevos
+        // Encolar nuevos procesos que han llegado
         while (i < procesos.size() && procesos[i].arrivalTime <= tiempo) {
             cola.push(procesos[i]);
             i++;
@@ -84,7 +131,7 @@ GanttWindow* gantt) {
         for (int ciclo = 0; ciclo < ejecutar; ciclo++) {
             if (gantt) {
                 gantt->agregarBloqueEnTiempoReal(actual.pid, tiempo + ciclo);
-                delay(300); 
+                delay(300);
             }
         }
         bloques.push_back({actual.pid, tiempo, ejecutar});
@@ -93,7 +140,7 @@ GanttWindow* gantt) {
         ultimaEjecucion[actual.pid] = tiempo;
         resultado.push_back(actual);
 
-        // Encolar recién llegados
+        // Encolar recién llegados durante la ejecución
         while (i < procesos.size() && procesos[i].arrivalTime <= tiempo) {
             cola.push(procesos[i]);
             i++;
@@ -118,24 +165,45 @@ GanttWindow* gantt) {
 // Shortest Job First
 // ---------------------
 std::vector<Proceso> shortestJobFirst(const std::vector<Proceso>& procesos, GanttWindow* gantt) {
+    // --- Programación defensiva ---
+    if (procesos.empty()) {
+        qDebug() << "shortestJobFirst: vector de procesos vacío. Abortando.";
+        return {};
+    }
+    for (const auto& p : procesos) {
+        if (p.arrivalTime < 0) {
+            qDebug() << "shortestJobFirst: arrivalTime inválido en PID" << p.pid << ":" << p.arrivalTime;
+            return {};
+        }
+        if (p.burstTime <= 0) {
+            qDebug() << "shortestJobFirst: burstTime inválido en PID" << p.pid << ":" << p.burstTime;
+            return {};
+        }
+        if (p.priority < 0) {
+            qDebug() << "shortestJobFirst: priority inválido en PID" << p.pid << ":" << p.priority;
+            return {};
+        }
+    }
+    // --- Fin defensiva ---
+
     std::vector<Proceso> ejecucion = procesos;
     int tiempo = 0;
 
-    // Orden inicial por bursTime (necesitamos que el que tiene el tiempo más corto se ejecute primro y no tomamos en cuenta AT)
-    std::sort(ejecucion.begin(), ejecucion.end(), [](auto& a, auto& b) {
+    // Orden inicial por burstTime
+    std::sort(ejecucion.begin(), ejecucion.end(), [](const Proceso& a, const Proceso& b) {
         return a.burstTime < b.burstTime;
     });
     for (auto& p : ejecucion) {
         p.startTime = tiempo;
-        //En este ciclo graficamos al proceso actual en todos los ciclos que ocupa
+        // En este bucle graficamos al proceso actual en todos los ciclos que ocupa
         for (int ciclo = 0; ciclo < p.burstTime; ciclo++) {
             if (gantt) {
                 gantt->agregarBloqueEnTiempoReal(p.pid, tiempo + ciclo);
-                delay(300); // Establecemos en delay de 3 segundos
+                delay(300);
             }
         }
         p.completionTime = tiempo + p.burstTime;
-        p.waitingTime = p.startTime;
+        p.waitingTime = p.startTime - p.arrivalTime;
         p.turnaroundTime = p.completionTime - p.arrivalTime;
         tiempo = p.completionTime;
     }
@@ -146,6 +214,27 @@ std::vector<Proceso> shortestJobFirst(const std::vector<Proceso>& procesos, Gant
 // Priority Scheduling 
 // ---------------------
 std::vector<Proceso> priorityScheduling(const std::vector<Proceso>& procesos, GanttWindow* gantt) {
+    // --- Programación defensiva ---
+    if (procesos.empty()) {
+        qDebug() << "priorityScheduling: vector de procesos vacío. Abortando.";
+        return {};
+    }
+    for (const auto& p : procesos) {
+        if (p.arrivalTime < 0) {
+            qDebug() << "priorityScheduling: arrivalTime inválido en PID" << p.pid << ":" << p.arrivalTime;
+            return {};
+        }
+        if (p.burstTime <= 0) {
+            qDebug() << "priorityScheduling: burstTime inválido en PID" << p.pid << ":" << p.burstTime;
+            return {};
+        }
+        if (p.priority < 0) {
+            qDebug() << "priorityScheduling: priority inválido en PID" << p.pid << ":" << p.priority;
+            return {};
+        }
+    }
+    // --- Fin defensiva ---
+
     std::vector<Proceso> ejecucion = procesos;
     int tiempo = 0;
 
@@ -154,28 +243,21 @@ std::vector<Proceso> priorityScheduling(const std::vector<Proceso>& procesos, Ga
         return a.priority < b.priority;
     });
 
-    // 3) Recorremos en ese orden, usando prioridad en lugar de burstTime
+    // 3) Recorremos en ese orden
     for (auto& p : ejecucion) {
-        // Asignamos startTime en el instante actual “tiempo”
         p.startTime = tiempo;
-
-        // 4) Dibujamos en el Gantt cada ciclo de este proceso
+        // En este bucle graficamos al proceso actual en todos los ciclos que ocupa
         for (int ciclo = 0; ciclo < p.burstTime; ++ciclo) {
             if (gantt) {
                 gantt->agregarBloqueEnTiempoReal(p.pid, tiempo + ciclo);
-                delay(300);  // mantén el mismo delay que en SJF/RR
+                delay(300);
             }
         }
-
-        // 5) Actualizamos métricas
         p.completionTime = tiempo + p.burstTime;
-        p.waitingTime    = p.startTime;               // Tiempo de espera = cuándo empezó – cuándo llegó
-        p.turnaroundTime = p.completionTime - p.arrivalTime;          // Turnaround = cuando terminó – cuándo llegó
-
-        // Avanzamos el reloj a fin de este proceso
+        p.waitingTime = p.startTime - p.arrivalTime;
+        p.turnaroundTime = p.completionTime - p.arrivalTime;
         tiempo = p.completionTime;
     }
-
     return ejecucion;
 }
 
@@ -186,6 +268,27 @@ std::vector<Proceso> shortestRemainingTime(
     const std::vector<Proceso>& procesosOriginal,
     std::vector<BloqueGantt>& bloques, GanttWindow* gantt)
 {
+    // --- Programación defensiva ---
+    if (procesosOriginal.empty()) {
+        qDebug() << "shortestRemainingTime: vector de procesos vacío. Abortando.";
+        return {};
+    }
+    for (const auto& p : procesosOriginal) {
+        if (p.arrivalTime < 0) {
+            qDebug() << "shortestRemainingTime: arrivalTime inválido en PID" << p.pid << ":" << p.arrivalTime;
+            return {};
+        }
+        if (p.burstTime <= 0) {
+            qDebug() << "shortestRemainingTime: burstTime inválido en PID" << p.pid << ":" << p.burstTime;
+            return {};
+        }
+        if (p.priority < 0) {
+            qDebug() << "shortestRemainingTime: priority inválido en PID" << p.pid << ":" << p.priority;
+            return {};
+        }
+    }
+    // --- Fin defensiva ---
+
     // 1) Copiar y ordenar por arrivalTime
     std::vector<Proceso> procesos = procesosOriginal;
     std::sort(procesos.begin(), procesos.end(),
@@ -271,10 +374,8 @@ std::vector<Proceso> shortestRemainingTime(
                 break;
             }
         }
-        
 
         // 8) Ejecutar un ciclo
-
         if (gantt) {
             gantt->agregarBloqueEnTiempoReal(procesoActual.pid, tiempo);
             delay(300);

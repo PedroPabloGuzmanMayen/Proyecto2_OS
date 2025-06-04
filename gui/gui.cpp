@@ -3,16 +3,15 @@
 #include <QDebug>
 #include <QFile>
 #include <QDir>
+#include <QFileDialog>
 #include "algoritmo.h"
 #include "synchronizer.h"
 #include "ganttwindow.h"     // Necesario para usar GanttWindow
 #include <QThread>           // Para QThread::msleep
 #include <QApplication>      // Para processEvents()
-#include <QDesktopServices>  
+#include <QDesktopServices>
 #include <QUrl>
 #include <QTextStream>
-#include <QFile>
-#include <QMessageBox>
 #include <QProcess>
 #include <QDialog>
 #include <QVBoxLayout>
@@ -103,7 +102,7 @@ SimuladorGUI::SimuladorGUI(QWidget *parent)
 
     layout->addWidget(grupoSimulacion);
 
-    // Botón “Abrir resultados Simulación A” 
+    // Botón “Abrir resultados Simulación A”
     btnAbrirResultadosA = new QPushButton("Abrir resultados Simulación A", this);
     layout->addWidget(btnAbrirResultadosA);
     connect(btnAbrirResultadosA, &QPushButton::clicked,
@@ -421,10 +420,15 @@ void SimuladorGUI::onSimulacionAClicked() {
         return;
     }
 
-    // 3) Determinar algoritmo y ejecutar
+    // 3) Verificar Round Robin: quantum > 0
     QString algoritmo = comboAlgoritmo->currentText();
     int quantum = spinQuantum->value();
-    // Agregar el componente de Gantt
+    if (algoritmo.contains("Round Robin", Qt::CaseInsensitive) && quantum <= 0) {
+        QMessageBox::warning(this, "Error", "Quantum inválido. Debe ser un entero mayor que 0.");
+        return;
+    }
+
+    // 4) Preparar el widget de Gantt
     if (ganttWidget) {
         layout->removeWidget(ganttWidget);
         delete ganttWidget;
@@ -433,6 +437,7 @@ void SimuladorGUI::onSimulacionAClicked() {
     ganttWidget = new GanttWindow(this);
     layout->addWidget(ganttWidget);
 
+    // 5) Invocar el algoritmo correspondiente
     std::vector<Proceso> ejecutados;
     std::vector<BloqueGantt> bloques;
 
@@ -462,9 +467,7 @@ void SimuladorGUI::onSimulacionAClicked() {
         QFile file(rutaSalida);
         if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
             QTextStream out(&file);
-            // Escribir encabezado CSV
             out << "PID,StartTime,CompletionTime,WaitingTime,TurnaroundTime\n";
-            // Recorrer cada proceso ya ejecutado y escribir sus métricas
             for (const Proceso &p : ejecutados) {
                 out << p.pid << ","
                     << p.startTime << ","
@@ -479,7 +482,7 @@ void SimuladorGUI::onSimulacionAClicked() {
         }
     }
 
-    // 4) Mostrar orden y tiempo promedio
+    // 6) Mostrar orden y tiempo promedio
     QString resultado = "Orden de ejecución:\n";
     for (const auto& p : ejecutados) {
         resultado += QString("%1 (inicio: %2)\n").arg(p.pid).arg(p.startTime);
@@ -487,7 +490,7 @@ void SimuladorGUI::onSimulacionAClicked() {
     double promedio = calcularTiempoEsperaPromedio(procesos, ejecutados);
     resultado += "\nTiempo de espera promedio: " + QString::number(promedio, 'f', 2);
 
-    // 6) Mostrar cuadro de texto con métricas
+    // 7) Mostrar cuadro de texto con métricas
     QMessageBox::information(this, "Resultado Simulación A", resultado);
 }
 
@@ -531,14 +534,12 @@ void SimuladorGUI::onSimulacionBClicked() {
     ganttWidget = new GanttWindow(this);
     layout->addWidget(ganttWidget);
 
-    // 3) Revisar el modo seleccionado (Mutex vs Semáforo)
+    // 4) Revisar el modo seleccionado (Mutex vs Semáforo)
     bool usarSemaforo = rbSemaforo->isChecked();
     std::vector<BloqueSync> timeline;
     if (!usarSemaforo) {
-        // Modo Mutex (contador implícito = 1 por recurso)
         timeline = simulateMutex(actsSync, recsSync, procSync, static_cast<GanttWindow*>(ganttWidget), this);
     } else {
-        // Modo Semáforo (contador > 1 en recursos)
         timeline = simulateSyncSemaforo(actsSync, recsSync, procSync, static_cast<GanttWindow*>(ganttWidget), this);
     }
 
@@ -547,7 +548,7 @@ void SimuladorGUI::onSimulacionBClicked() {
         return;
     }
 
-    // 6) Construir el HTML para el cuadro de diálogo (opcional)
+    // 5) Construir el HTML para el cuadro de diálogo (opcional)
     QString resultadoHtml;
     resultadoHtml.reserve(timeline.size() * 50);
     for (const auto &b : timeline) {
@@ -564,7 +565,7 @@ void SimuladorGUI::onSimulacionBClicked() {
         resultadoHtml = "No se generó ningún bloque para Simulación B.";
     }
 
-    // 7) Mostrar un QMessageBox con ese HTML (opcional)
+    // 6) Mostrar un QMessageBox con ese HTML (opcional)
     QMessageBox msg(this);
     msg.setWindowTitle("Resultado Simulación B");
     msg.setTextFormat(Qt::RichText);
