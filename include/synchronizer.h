@@ -6,6 +6,9 @@
 #include <vector>
 #include "tipos.h" // Para usar BloqueSync
 
+class GanttWindow;
+class QWidget;
+
 /** Tipo de acción: lectura o escritura */
 enum class ActionType { READ, WRITE };
 
@@ -63,17 +66,20 @@ std::vector<Accion> loadAcciones(const QString &ruta);
 std::vector<BloqueSync> simulateSync(
     const std::vector<Accion> &acciones,
     const std::vector<Proceso> &procesos,
-    std::vector<Recurso> &recursosVec, bool isMutex);
+    std::vector<Recurso> &recursosVec, bool isMutex = false, GanttWindow *gantt = nullptr,
+    QWidget *parent = nullptr);
 
 std::vector<BloqueSync> simulateMutex(
     const std::vector<Accion> &acciones,
     std::vector<Recurso> &recursosVec,
-    const std::vector<Proceso> &procesos);
+    const std::vector<Proceso> &procesos, GanttWindow *gantt = nullptr,
+    QWidget *parent = nullptr);
 
 std::vector<BloqueSync> simulateSyncSemaforo(
     const std::vector<Accion> &acciones,
     std::vector<Recurso> &recursosVec,
-    const std::vector<Proceso> &procesos);
+    const std::vector<Proceso> &procesos, GanttWindow *gantt = nullptr,
+    QWidget *parent = nullptr);
 
 
 #endif // SYNCHRONIZER_H
