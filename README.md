@@ -67,14 +67,6 @@ Desde la carpeta `build/`, ejecute:
 ./simulador
 ```
 
-## ▶️ Ejecución del simulador
-
-Desde la carpeta `build/`, ejecuta:
-
-```bash
-./simulador
-```
-
 Se abrirá una ventana con un menú principal con dos opciones:
 
 * **Opción 1 del menú principal - Simulador visual**
@@ -100,7 +92,7 @@ Se abrirá una ventana con:
 * **Opción 2 del menú principal - Calcular estadísticas de múltiples algoritmos**
 
   * Selector múltiple de algoritmos (FIFO, SJF, SRT, Round Robin, Priority).
-  * Botón calcular estadísticas (muestra las estadísticas de cada uno de los algortimos seleccionados previamente y muestra el mejor algoritmo con el mejor tiempo promedio)
+  * Botón calcular estadísticas (muestra las estadísticas de cada uno de los algortimos seleccionados previamente y muestra el mejor algoritmo con el mejor tiempo promedio).
 
 ---
 
@@ -111,6 +103,53 @@ Desde la carpeta `build/`, ejecute:
 ```bash
 ./tests
 ```
+
+**Descripción de `tests.cpp`:**
+El archivo `tests.cpp` verifica el correcto funcionamiento de todos los algoritmos y mecanismos implementados en el simulador. Cada test hace lo siguiente:
+
+1. **FIFO simple:**
+
+    * Crea tres procesos con diferentes tiempos de llegada y ráfaga.
+    * Invoca `fifo(procesos, nullptr)` y comprueba que el orden de salida sea `P1, P2, P3` (primer llegado, primer servido).
+      
+ 2. **SJF simple:**
+
+    * Crea tres procesos cuyos tiempos de ráfaga son 5, 3 y 4.
+    * Invoca `shortestJobFirst(procesos, nullptr)` y comprueba que la secuencia de PIDs siga el orden de ráfaga ascendente: `P2 (3)`, `P3 (4)`, `P1 (5)`.
+      
+ 3. **Priority simple:**
+
+    * Crea tres procesos con prioridades 2, 1 y 3.
+    * Invoca `priorityScheduling(procesos, nullptr)` y comprueba que la secuencia de PIDs siga el orden de prioridad ascendente: `P2 (1)`, `P1 (2)`, `P3 (3)`.
+      
+ 4. **Round Robin simple:**
+
+    * Crea tres procesos con ráfagas 5, 3 y 4 y asigna un quantum de 2.
+    * Invoca `roundRobin(procesos, quantum, dummy, nullptr)`.
+    * Filtra la primera aparición de cada PID en la lista completa de ejecuciones y comprueba que el orden de inicio sea `P1, P2, P3`.
+      
+ 5. **SRT simple:**
+
+    * Crea tres procesos con ráfagas 5, 3 y 4.
+    * Invoca `shortestRemainingTime(procesos, bloques, nullptr)` y comprueba que la secuencia final de procesos sea `P2, P1, P3` (el proceso de ráfaga más corta se ejecuta primero, con preempción).
+      
+ 6. **Mutex simple:**
+
+    * Crea dos procesos que compiten por un recurso con capacidad 1.
+    * Define dos acciones de tipo READ en el mismo ciclo para `P1` y `P2`.
+    * Invoca `simulateMutex(acciones, recursos, procesos, nullptr, nullptr)` y comprueba que la línea de tiempo resulte en tres bloques:
+
+      1. `P1 ACCESS`
+      2. `P2 WAIT`
+      3. `P2 ACCESS`
+         
+ 7. **Semáforo simple:**
+
+    * Crea dos procesos que compiten por un recurso con capacidad 2.
+    * Define dos acciones de tipo READ en el mismo ciclo para `P1` y `P2`.
+    * Invoca `simulateSyncSemaforo(acciones, recursos, procesos, nullptr, nullptr)` y comprueba que ambos accedan sin esperas, resultando en dos bloques `ACCESS`.
+
+ Al finalizar, muestra un resumen con la cantidad de tests pasados y fallidos.
 
 ---
 
@@ -305,9 +344,9 @@ Proyecto2_OS/
 │   ├── gui.cpp           # Implementación de la ventana principal y slots
 │   ├── gui.h             # Declaración de SimuladorGUI
 │   ├── mainmenu.cpp      # Subventana de menú inicial (si aplica)
-│   ├── mainmenu.h
-│   ├── estadisticas.cpp  # (Opcional) Ventana de estadísticas
-│   └── estadisticas.h
+│   ├── mainmenu.h        # Ventana del menú principal del programa
+│   ├── estadisticas.cpp  # Ventana de estadísticas
+│   └── estadisticas.h    # Headers de estadísticas
 ├── include/              # Headers públicos
 │   ├── algoritmo.h       # Declaración de algoritmos de planificación
 │   ├── proceso.h         # Estructura Proceso
@@ -325,14 +364,14 @@ Proyecto2_OS/
 │   ├── priorityQueue.cpp # Implementación de cola mínima usada en SRT
 │   └── proceso.cpp       # (Repetido) Manejador de lectura de procesos
 ├── test/                 # Pruebas unitarias de los algoritmos de planificación
-│   └── tests.cpp         # Casos de prueba para FIFO, SJF, SRT, RR, Priority
+│   └── tests.cpp         # Casos de prueba para FIFO, SJF, SRT, RR, Priority (Simulación A) y casos de prueba para Mutex Lock y semáforos (Simulación B)
 ├── data/                 # Archivos de entrada por defecto
 │   ├── procesos.txt      # Lista de procesos (sim A y B)
 │   ├── recursos.txt      # Lista de recursos (sim B)
 │   └── acciones.txt      # Acciones sobre recursos (sim B)
-├── build/                # Carpeta generada por CMake (ignorar en Git)
+├── build/                # Carpeta generada por CMake (ignorado en Git)
 ├── CMakeLists.txt        # Archivo principal de CMake
-└── README.md             # Este archivo (documentación actualizada)
+└── README.md             # Este archivo
 ```
 
 ---
