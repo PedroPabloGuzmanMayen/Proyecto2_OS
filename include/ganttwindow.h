@@ -32,7 +32,13 @@ public:
     void limpiarDiagrama();
 
     /// Pinta un bloque de sincronización (ACCESS vs WAIT) en el diagrama de Gantt.
-    void agregarBloqueSync(const QString &pid, int ciclo, bool accessed);
+    // Para la simulación B: ahora incluimos recurso y tipo de acción para mostrarlo
+    void agregarBloqueSync(const QString &pid,
+                           const QString &recurso,
+                           const QString &accion,  // "READ" o "WRITE"
+                           int ciclo,
+                           bool accessed);
+
 
 private:
     // Etiqueta que mostrará “Ciclo: X”
